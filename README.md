@@ -7,7 +7,7 @@ Clinical characterization of cancer treatment using the Oncology CDM
 - Study type: **Clinical Application**
 - Tags: **OHDSI-Korea, FEEDER-NET, Oncology WG**
 - Study lead: **Hokyun Jeon, Seng Chan You**
-- Study lead forums tag: **[[Hokyun]](https://forums.ohdsi.org/u/hokyun)**
+- Study lead forums tag: **[Hokyun Jeon](https://forums.ohdsi.org/u/hokyun)**
 - Study start date: **Februrary 25, 2020**
 - Study end date: **-**
 - Protocol: **-**
