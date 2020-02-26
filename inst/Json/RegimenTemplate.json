@@ -1,0 +1,33 @@
+[
+  {
+    "conceptId": [""],
+    "regimenName": [""],
+    "validStartDate": ["2020-01-10"],
+    "validEndDate": ["2099-12-31"],
+    "invalidReason": [""],
+    "includeDescendant": [true],
+    "gapDateBetweenCycle": [40],
+    "gapDateBefore": [30],
+    "gapDateAfter": [20],
+    "drugInspectionDate": [10],
+    "outofCohortPeriod": [false],
+    "Primary_drug_name": {
+      "role": ["primary"],
+      "table": ["drug_exposure"],
+      "conceptId": [""],
+      "conceptName": [""]
+    },
+    "Secondary_drug_name": {
+      "role": ["secondary"],
+      "table": ["drug_exposure"],
+      "conceptId": [""],
+      "conceptName": [""]
+    },
+    "Excluded_drug_name": {
+      "role": ["excluded"],
+      "table": ["drug_exposure"],
+      "conceptId": [""],
+      "conceptName": [""]
+    }
+  }
+]
