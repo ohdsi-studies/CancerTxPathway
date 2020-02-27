@@ -5,9 +5,8 @@
 \title{annual graph
 annual graph in treatment regimen}
 \usage{
-annualGraph(connectionDetails, vocaDatabaseSchema,
-  resultDatabaseSchema = NULL, cohortTable, targetCohortIds,
-  conditionCohortIds = NULL, fromYear, toYear)
+annualGraph(connectionDetails, resultDatabaseSchema, cohortTable,
+  targetCohortIds, conditionCohortIds = NULL, fromYear, toYear)
 }
 \value{
 annual treatment regimen highcharter graph

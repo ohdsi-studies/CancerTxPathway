@@ -13,9 +13,9 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#' CreateCohort
+#' createEpisodeCohort
 #' Create cohort of interest by using condition concept Ids.
-#' @param createCohortTable
+#' @param createEpisodeCohortTable
 #' @param connectionDetails
 #' @param oracleTempSchema
 #' @param cdmDatabaseSchema
@@ -28,8 +28,8 @@
 #' @param includeConceptIdSetDescendant
 #' @param targetCohortId
 #' @param cycle
-#' @export createCohort
-createCohort <- function(createCohortTable = F,
+#' @export createEpisodeCohort
+createEpisodeCohort <- function(createEpisodeCohortTable = F,
                          connectionDetails,
                          oracleTempSchema = NULL,
                          cdmDatabaseSchema,
@@ -48,9 +48,9 @@ createCohort <- function(createCohortTable = F,
 
   connection <- DatabaseConnector::connect(connectionDetails = connectionDetails)
 
-  if(createCohortTable){
+  if(createEpisodeCohortTable){
     ParallelLogger::logInfo("Creating table for the cohorts")
-    sql <- SqlRender::loadRenderTranslateSql(sqlFilename= "CreateCohortTable.sql",
+    sql <- SqlRender::loadRenderTranslateSql(sqlFilename= "createEpisodeCohortTable.sql",
                                              packageName = "CancerTxPathway",
                                              dbms = attr(connection,"dbms"),
                                              oracleTempSchema = oracleTempSchema,

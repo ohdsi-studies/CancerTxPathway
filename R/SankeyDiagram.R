@@ -42,20 +42,16 @@ sankeyDiagram<-function(connectionDetails,
                         collapseDates = 0,
                         nodeMinSubject = 0
 ){
-  ##Condition cohort##
-  if(!is.null(conditionCohortIds)){
-    conditionCohort<-cohortRecords(connectionDetails,
-                                   resultDatabaseSchema,
-                                   cohortTable,
-                                   conditionCohortIds)}
-
   ##Treatment cohort##
   cohortDescript <- cohortDescription()
-  cohortData<-cohortRecords(connectionDetails,
-                                     resultDatabaseSchema,
-                                     cohortTable,
-                                     targetCohortIds)
-  if(!is.null(conditionCohortIds)){cohortData<-cohortData %>% subset(subjectId %in% conditionCohort$subjectId)}
+  cohortForGraph<-cohortCycle(connectionDetails,
+                              resultDatabaseSchema,
+                              cohortTable,
+                              targetCohortIds,
+                              identicalSeriesCriteria = 60,
+                              conditionCohortIds = NULL)
+  cohortForGraph <- cohortForGraph %>% subset(cycle == 1)
+  cohortData <- cohortForGraph %>% select(-cohortName,-cycle)
   cohortData$cohortStartDate<-as.Date(cohortData$cohortStartDate)
   cohortData$cohortEndDate<-as.Date(cohortData$cohortEndDate)
   cohortData<-dplyr::left_join(cohortData,cohortDescript, by= c("cohortDefinitionId"="cohortDefinitionId"))

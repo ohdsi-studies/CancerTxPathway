@@ -25,7 +25,7 @@
 #' @param identicalSeriesCriteria
 #' @param heatmapPlotData
 #' @param maximumCycleNumber
-#' @param colorSeed
+#' @param heatmapColor
 #' @keywords heatmap
 #' @return repitition trend heatmap
 #' @examples
@@ -35,40 +35,6 @@
 #' @import ggplot2
 #' @import tidyr
 #' @import RColorBrewer
-#' @export cohortCycle
-cohortCycle<- function(connectionDetails,
-                       resultDatabaseSchema,
-                       cohortTable,
-                       targetCohortIds,
-                       identicalSeriesCriteria,
-                       conditionCohortIds){
-  ##Condition cohort##
-  if(!is.null(conditionCohortIds)){
-    conditionCohort<-cohortRecords(connectionDetails,
-                                   resultDatabaseSchema,
-                                   cohortTable,
-                                   conditionCohortIds)}
-
-  ##Treatment cohort##
-  cohortDescript <- cohortDescription()
-  cycleCohort<-cohortRecords(connectionDetails,
-                             resultDatabaseSchema,
-                             cohortTable,
-                             targetCohortIds)
-  if(!is.null(conditionCohortIds)){cycleCohort<-cycleCohort %>% subset(subjectId %in% conditionCohort$subjectId)}
-  cycleCohort$cohortStartDate<-as.Date(cycleCohort$cohortStartDate)
-  cycleCohort$cohortEndDate<-as.Date(cycleCohort$cohortEndDate)
-  cycleCohort<-dplyr::left_join(cycleCohort,cohortDescript, by= c("cohortDefinitionId"="cohortDefinitionId"))
-  cohortWtDiff <- cycleCohort %>% group_by(subjectId,cohortDefinitionId) %>% arrange(subjectId,cohortStartDate) %>% mutate(dateDiff = (cohortStartDate-lag(cohortStartDate)))
-  cohortWtDiff$dateDiff<-as.numeric(cohortWtDiff$dateDiff)
-  cohortWtDiff$flagSeq <- NA
-  cohortWtDiff$flagSeq[is.na(cohortWtDiff$dateDiff)|cohortWtDiff$dateDiff>=identicalSeriesCriteria] <- 1
-  standardCycle<-data.table::as.data.table(cohortWtDiff)
-  standardCycle[, cycle := seq_len(.N), by=.(cumsum(!is.na(flagSeq)))]
-  standardCycle<-standardCycle %>% select(cohortDefinitionId,subjectId,cohortStartDate,cohortEndDate,cohortName,cycle)
-  standardCycle<-data.frame(standardCycle)
-  return(standardCycle)}
-
 #' @export distributionTable
 distributionTable <- function(standardData,
                               targetId){
@@ -117,7 +83,7 @@ heatmapData<-function(connectionDetails,
 #' @export iterationHeatmap
 iterationHeatmap<-function(heatmapPlotData,
                            maximumCycleNumber = 20,
-                           colorSeed=1){
+                           heatmapColor="Reds"){
   #label
   total<-heatmapPlotData %>%group_by(cohortName) %>% mutate(sum = sum(n)) %>% select (cohortName,sum)
   total<-unique(total)
@@ -144,12 +110,6 @@ iterationHeatmap<-function(heatmapPlotData,
   plotData$label <- NULL
   sort.order <- order(plotData[,1])
   label<-as.matrix(plotDataN)
-  #Color
-  colorList<- c("Reds",'Blues','Greens')
-  set.seed(colorSeed)
-  randomColorNum<-sample(1:length(colorList),1)
-  selectedColor<-unlist(lapply(randomColorNum,function(x){colorList[x]}))
-
   heatmap<-superheat::superheat(plotData,
                                 X.text = label,
                                 X.text.size = 4,
@@ -158,7 +118,7 @@ iterationHeatmap<-function(heatmapPlotData,
                                 left.label.size = 0.3,
                                 bottom.label.text.size=4,
                                 bottom.label.size = .05,
-                                heat.pal = RColorBrewer::brewer.pal(9, selectedColor),
+                                heat.pal = RColorBrewer::brewer.pal(9, heatmapColor),
                                 heat.pal.values = c(seq(0,0.3,length.out = 8),1),
                                 order.rows = sort.order,
                                 title = "Trends of the Repetition")

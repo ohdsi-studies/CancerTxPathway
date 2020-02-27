@@ -20,26 +20,21 @@
 #' @param oracleTempSchema
 #' @param cdmDatabaseSchema
 #' @param cohortDatabaseSchema
-#' @param vocabularyDatabaseSchema
+#' @param vocaDatabaseSchema
 #' @param cohortTable
-#' @param conceptIdSet
 #' @param includeConceptIdSetDescendant
-#' @param targetCohortId
 #' @export
 createCohort <- function(createCohortTable = F,
                          connectionDetails,
                          oracleTempSchema = NULL,
                          cdmDatabaseSchema,
                          cohortDatabaseSchema,
-                         vocabularyDatabaseSchema = cdmDatabaseSchema,
+                         vocaDatabaseSchema = cdmDatabaseSchema,
                          cohortTable,
-                         conceptIdSet = c(),
-                         includeConceptIdSetDescendant = F,
-                         targetCohortId
+                         includeConceptIdSetDescendant = F
                          ){
-  if(length(targetCohortId) != 1) stop ("Specify 'targetCohortId' as one integer. It cannot be multiple.")
-  if(length(as.numeric(conceptIdSet)) <1 ) stop ("Please specify concept Id Set as a numeric vector")
-
+  pathToCsv <- system.file("csv", "CancerConceptIdSet.csv", package = "CancerTxPathway")
+  cohortsToCreate <- read.csv(pathToCsv, stringsAsFactors = F)
   connection <- DatabaseConnector::connect(connectionDetails = connectionDetails)
 
   if(createCohortTable){
@@ -54,19 +49,22 @@ createCohort <- function(createCohortTable = F,
   }
 
   ParallelLogger::logInfo("Insert cohort of interest into the cohort table")
+  for (i in 1:nrow(cohortsToCreate)) {
+  targetConceptIdSet <- paste(strsplit(as.character(cohortsToCreate$conceptIds),';')[[i]],collapse = ',')
+  targetCohortId <- cohortsToCreate$cohortId[i]
   sql <- SqlRender::loadRenderTranslateSql(sqlFilename= "CohortGeneration.sql",
                                            packageName = "CancerTxPathway",
                                            dbms = attr(connection,"dbms"),
                                            oracleTempSchema = oracleTempSchema,
                                            cdm_database_schema = cdmDatabaseSchema,
-                                           vocabulary_database_schema = vocabularyDatabaseSchema,
+                                           vocabulary_database_schema = vocaDatabaseSchema,
                                            target_database_schema = cohortDatabaseSchema,
                                            target_cohort_table = cohortTable,
                                            include_descendant = includeConceptIdSetDescendant,
-                                           condition_concept_ids = paste(conceptIdSet,collapse=","),
+                                           condition_concept_ids = targetConceptIdSet,
                                            target_cohort_id = targetCohortId)
   DatabaseConnector::executeSql(connection, sql, progressBar = TRUE, reportOverallTime = TRUE)
-
+  }
   DatabaseConnector::disconnect(connection)
 }
 

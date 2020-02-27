@@ -28,27 +28,22 @@
 #' @import highcharter
 #' @export annualGraph
 annualGraph<-function(connectionDetails,
-                      vocaDatabaseSchema,
-                      resultDatabaseSchema = NULL,
+                      resultDatabaseSchema,
                       cohortTable,
                       targetCohortIds,
                       conditionCohortIds = NULL,
                       fromYear,
                       toYear){
-  ##Condition cohort##
-  if(!is.null(conditionCohortIds)){
-    conditionCohort<-cohortRecords(connectionDetails,
-                                   resultDatabaseSchema,
-                                   cohortTable,
-                                   conditionCohortIds)}
-
   ##cohort##
   cohortDescript <- cohortDescription()
-  cohortForGraph<-cohortRecords(connectionDetails,
-                                resultDatabaseSchema,
-                                cohortTable,
-                                targetCohortIds)
-  if(!is.null(conditionCohortIds)){cohortForGraph<-cohortForGraph %>% subset(subjectId %in% conditionCohort$subjectId)}
+  cohortForGraph<-cohortCycle(connectionDetails,
+                              resultDatabaseSchema,
+                              cohortTable,
+                              targetCohortIds,
+                              identicalSeriesCriteria = 60,
+                              conditionCohortIds)
+  cohortForGraph <- cohortForGraph %>% subset(cycle == 1)
+  cohortForGraph <- cohortForGraph %>% select(-cohortName,-cycle)
   cohortForGraph$cohortStartDate<-as.Date(cohortForGraph$cohortStartDate)
   cohortForGraph$cohortEndDate<-as.Date(cohortForGraph$cohortEndDate)
   cohortForGraph<-dplyr::left_join(cohortForGraph,cohortDescript, by= c("cohortDefinitionId"="cohortDefinitionId"))
