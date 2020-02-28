@@ -58,10 +58,33 @@ executeExtraction <- function(connectionDetails,
   pathToCsv <- system.file("csv", "RegimenConceptId.csv", package = "CancerTxPathway")
   regimenConceptId <- read.csv(pathToCsv)
 
+  ## create the episode table and episode event table
+  if(createEpisodeAndEventTable == TRUE){
+
+    connection <- DatabaseConnector::connect(connectionDetails = connectionDetails)
+    ParallelLogger::logInfo("Creating table for the episode")
+    sql <- SqlRender::loadRenderTranslateSql(sqlFilename= "CreateEpisodeTable.sql",
+                                             packageName = "CancerTxPathway",
+                                             dbms = attr(connection,"dbms"),
+                                             oracleTempSchema = oracleTempSchema,
+                                             oncology_database_schema = oncologyDatabaseSchema,
+                                             episode_table = episodeTable)
+    DatabaseConnector::executeSql(connection, sql, progressBar = TRUE, reportOverallTime = TRUE)
+    ParallelLogger::logInfo("Creating table for the episode_event")
+    sql <- SqlRender::loadRenderTranslateSql(sqlFilename= "CreateEpisodeEventTable.sql",
+                                             packageName = "CancerTxPathway",
+                                             dbms = attr(connection,"dbms"),
+                                             oracleTempSchema = oracleTempSchema,
+                                             oncology_database_schema = oncologyDatabaseSchema,
+                                             episode_event_table = episodeEventTable)
+    DatabaseConnector::executeSql(connection, sql, progressBar = TRUE, reportOverallTime = TRUE)
+    DatabaseConnector::disconnect(connection)
+  }
+
   ## episode table and episode event generation:
-  for(i in nrow(regimenConceptId)){
+  for(i in 1:nrow(regimenConceptId)){
     targetCohortId <- regimenConceptId$targetCohortId[i]
-    targetRegimenConceptIds <- paste(strsplit(as.character(regimenConceptId$regimenConceptIds),';')[[i]],collapse = ',')
+    targetRegimenConceptIds <- strsplit(as.character(regimenConceptId$regimenConceptIds),';')[[i]]
     episodeAndEpisodeEvent <- generateEpisodeTable(targetRegimenConceptIds = targetRegimenConceptIds,
                                                    connectionDetails = connectionDetails,
                                                    cohortTable =cohortTable,
@@ -69,33 +92,12 @@ executeExtraction <- function(connectionDetails,
                                                    cohortDatabaseSchema = cohortDatabaseSchema,
                                                    targetCohortId = targetCohortId,
                                                    maxCores = maxCores)
-    if(createEpisodeAndEventTable == TRUE){
-      ## create the episode table and episode event table
-      connection <- DatabaseConnector::connect(connectionDetails = connectionDetails)
-      ParallelLogger::logInfo("Creating table for the episode")
-      sql <- SqlRender::loadRenderTranslateSql(sqlFilename= "CreateEpisodeTable.sql",
-                                               packageName = "CancerTxPathway",
-                                               dbms = attr(connection,"dbms"),
-                                               oracleTempSchema = oracleTempSchema,
-                                               oncology_database_schema = oncologyDatabaseSchema,
-                                               episode_table = episodeTable)
-      DatabaseConnector::executeSql(connection, sql, progressBar = TRUE, reportOverallTime = TRUE)
-      ParallelLogger::logInfo("Creating table for the episode_event")
-      sql <- SqlRender::loadRenderTranslateSql(sqlFilename= "CreateEpisodeEventTable.sql",
-                                               packageName = "CancerTxPathway",
-                                               dbms = attr(connection,"dbms"),
-                                               oracleTempSchema = oracleTempSchema,
-                                               oncology_database_schema = oncologyDatabaseSchema,
-                                               episode_event_table = episodeEventTable)
-      DatabaseConnector::executeSql(connection, sql, progressBar = TRUE, reportOverallTime = TRUE)
-      DatabaseConnector::disconnect(connection)
-    }
+
     ## Insert episode colorectal table to database:
     insertEpisodeToDatabase(connectionDetails = connectionDetails,
                             oncologyDatabaseSchema = oncologyDatabaseSchema,
                             episodeTable = episodeTable,
                             episodeEventTable = episodeEventTable,
-                            createEpisodeAndEventTable = createEpisodeAndEventTable,
                             episodeAndEpisodeEvent = episodeAndEpisodeEvent)
   }
 
