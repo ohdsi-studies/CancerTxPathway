@@ -1,0 +1,43 @@
+cohortDefinitionId,cohortName,type,conceptId
+4,Fluorouracil and Folinic acid,colorectal cancer regimen,35804545
+5,FOLFOX,colorectal cancer regimen,35806596
+6,Capecitabine monotherapy,colorectal cancer regimen,35804227
+7,FOLFIRI,colorectal cancer regimen,35804761
+8,FOLFOX4 and Bevacizumab,colorectal cancer regimen,35804776
+9,CapeOx,colorectal cancer regimen,35804755
+10,FOLFIRI and Bevacizumab,colorectal cancer regimen,35804770
+11,FOLFIRI and Cetuximab,colorectal cancer regimen,35804792
+12,AT (Taxotere),breast cancer regimen,35804244
+13,AC,breast cancer regimen,35804199
+14,CMF,breast cancer regimen,35804224
+15,FAC,breast cancer regimen,35804216
+16,FEC,breast cancer regimen,35804212
+17,Trastuzumab monotherapy,breast cancer regimen,35804222
+18,AT (Taxol),breast cancer regimen,35804226
+19,Capecitabine monotherapy,breast cancer regimen,35804227
+20,Doxorubicin monotherapy,breast cancer regimen,35804134
+21,Epirubicin monotherapy,breast cancer regimen,35804228
+22,Paclitaxel monotherapy,breast cancer regimen,35804166
+23,Docetaxel monotherapy,breast cancer regimen,35804162
+24,Vinorelbine monotherapy,breast cancer regimen,35804241
+25,Eribulin monotherapy,breast cancer regimen,35804265
+26,THP (Taxotere),breast cancer regimen,35804217
+27,TH (Taxol),breast cancer regimen,35804201
+28,TH (Taxotere),breast cancer regimen,35804220
+29,Capecitabine and Lapatinib,breast cancer regimen,35804311
+30,Gemcitabine monotherapy,lung cancer regimen,35804135
+31,Gefitinib monotherapy,lung cancer regimen,35806413
+32,Pemetrexed monotherapy,lung cancer regimen,35804168
+33,Carboplatin and Paclitaxel,lung cancer regimen,35803572
+34,Vinorelbine monotherapy,lung cancer regimen,35804241
+35,Docetaxel monotherapy,lung cancer regimen,35804162
+36,Carboplatin and Gemcitabine,lung cancer regimen,35804156
+37,Cisplatin and Pemetrexed,lung cancer regimen,35806173
+38,Cisplatin and Vinorelbine,lung cancer regimen,35804260
+39,Erlotinib monotherapy,lung cancer regimen,35805229
+40,Cisplatin and Docetaxel,lung cancer regimen,35803574
+41,Cisplatin and Etoposide,lung cancer regimen,35805329
+42,Colectomy,Surgery,
+43,Mastectomy,Surgery,
+44,Lung excision,Surgery,
+45,ANCUnder2000,event,WBC * Neutrophil %

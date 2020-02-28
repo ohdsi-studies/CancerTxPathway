@@ -20,6 +20,8 @@
 #' @param targetRegimen
 #' @param fromYear
 #' @param toYear
+#' @param outputFolder
+#' @param outputFileTitle
 #' @keywords year
 #' @return annual treatment regimen highcharter graph
 #' @examples
@@ -32,6 +34,8 @@ annualGraph<-function(connectionDetails,
                       cohortTable,
                       targetCohortIds,
                       conditionCohortIds = NULL,
+                      outputFolder = NULL,
+                      outputFileTitle,
                       fromYear,
                       toYear){
   ##cohort##
@@ -61,5 +65,8 @@ annualGraph<-function(connectionDetails,
   index<-data.frame(Year,Cohort)
   plotData<-left_join(index,cohortForGraph)
   plotData[is.na(plotData)]<-0
-  h<-plotData %>% highcharter::hchart(.,type="line",hcaes(x = Year,y=proportion,group = Cohort))
+  h<-plotData %>% highcharter::hchart(.,type="line",hcaes(x = Year,y=proportion,group = Cohort)) %>% hc_xAxis(title = list(text = "Year")) %>% hc_yAxis(title = list(text = "The number of patients treated specific regimen / Total patients received chemotherapy (%)"),from = 0, to =70)
+  if(!is.null(outputFolder)){
+    fileName <- paste0(outputFileTitle,'_','AnnualRegimenProportion.csv')
+    write.csv(plotData, file.path(outputFolder, "AnnualRegimenProportion.csv"))}
   return(list(plotData,h))}

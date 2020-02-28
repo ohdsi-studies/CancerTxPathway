@@ -24,6 +24,8 @@
 #' @param cohortName
 #' @param identicalSeriesCriteria
 #' @param heatmapPlotData
+#' @param outputFolder
+#' @param outputFileTitle
 #' @param maximumCycleNumber
 #' @param heatmapColor
 #' @keywords heatmap
@@ -59,6 +61,8 @@ heatmapData<-function(connectionDetails,
                       resultDatabaseSchema,
                       cohortTable,
                       targetCohortIds,
+                      outputFolder = NULL,
+                      outputFileTitle,
                       identicalSeriesCriteria = 60,
                       conditionCohortIds = NULL){
 
@@ -71,10 +75,14 @@ heatmapData<-function(connectionDetails,
 
   heatmapPlotData <-data.table::rbindlist(
     lapply(targetCohortIds,function(targetId){
-      result<-distributionTable(standardData=standardCycleData,
+      plotData<-distributionTable(standardData=standardCycleData,
                                 targetId=targetId)
-      names(result) <- c('cycle','n','ratio','cohortName')
-      return(result)})
+      names(plotData) <- c('cycle','n','ratio','cohortName')
+
+      if(!is.null(outputFolder)){
+        fileName <- paste0(outputFileTitle,'_','cycleRepetitionDistribution.csv')
+        write.csv(plotData, file.path(outputFolder, "cycleRepetitionDistribution.csv"))}
+      return(plotData)})
   )
 
   return(heatmapPlotData)

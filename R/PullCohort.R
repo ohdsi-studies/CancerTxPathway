@@ -41,8 +41,8 @@ cohortRecords <- function(connectionDetails,
   return(Cohort)}
 #' @export cohortDescription
 cohortDescription <- function(){
-  cohortDescriptionPath <- system.file("csv", "cohortDescription.csv", package = "CancerTxPathway")
-  cohortDescription<-read.csv(cohortDescriptionPath)
+  cohortDescriptionPath <- system.file("csv", "CohortDescription.csv", package = "CancerTxPathway")
+  cohortDescription<-read.csv(cohortDescriptionPath,stringsAsFactors = F)
   return(cohortDescription)
 }
 
