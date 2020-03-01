@@ -16,7 +16,7 @@
 #' CallRawData
 #' Bring the chemotherapy raw data table.
 #' @param connectionDetails
-#' @param resultDatabaseSchema
+#' @param cohortDatabaseSchema
 #' @param cohortTable
 #' @param targetCohortIds
 #' @param newCohortDescription
@@ -25,13 +25,13 @@
 #' @examples
 #' @export
 cohortRecords <- function(connectionDetails,
-                          resultDatabaseSchema,
+                          cohortDatabaseSchema,
                           cohortTable,
                           targetCohortIds){
   connection <- DatabaseConnector::connect(connectionDetails)
   sql <- 'SELECT * FROM @result_database_schema.@cohort_table WHERE cohort_definition_id IN (@target_cohort_ids)'
   sql <- SqlRender::render(sql,
-                           result_database_schema = resultDatabaseSchema,
+                           result_database_schema = cohortDatabaseSchema,
                            cohort_table = cohortTable,
                            target_cohort_ids= targetCohortIds)
   sql <- SqlRender::translate(sql, targetDialect = connectionDetails$dbms)
@@ -48,7 +48,7 @@ cohortDescription <- function(){
 
 #' @export
 cohortCycle<- function(connectionDetails,
-                       resultDatabaseSchema,
+                       cohortDatabaseSchema,
                        cohortTable,
                        targetCohortIds,
                        identicalSeriesCriteria,
@@ -56,14 +56,14 @@ cohortCycle<- function(connectionDetails,
   ##Condition cohort##
   if(!is.null(conditionCohortIds)){
     conditionCohort<-cohortRecords(connectionDetails,
-                                   resultDatabaseSchema,
+                                   cohortDatabaseSchema,
                                    cohortTable,
                                    conditionCohortIds)}
 
   ##Treatment cohort##
   cohortDescript <- cohortDescription()
   cycleCohort<-cohortRecords(connectionDetails,
-                             resultDatabaseSchema,
+                             cohortDatabaseSchema,
                              cohortTable,
                              targetCohortIds)
   if(!is.null(conditionCohortIds)){cycleCohort<-cycleCohort %>% subset(subjectId %in% conditionCohort$subjectId)}

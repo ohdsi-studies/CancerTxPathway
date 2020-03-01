@@ -16,14 +16,15 @@
 #' Violin Plot
 #' First incidence of event
 #' @param connectionDetails
-#' @param resultDatabaseSchema
+#' @param cohortDatabaseSchema
 #' @param cohortTable
 #' @param targetCohortIds
 #' @param identicalSeriesCriteria
 #' @param conditionCohortIds
 #' @param eventCohortIds
 #' @param restrictEventDate
-#' @param restrictInitialSeries
+#' @param outputFolder
+#' @param outputFileTitle
 #' @keywords Incidence
 #' @return Incidence plot
 #' @examples
@@ -33,20 +34,21 @@
 #' @import hrbrthemes
 #' @import plotly
 #' @import viridis
-#' @export violinPlot
-violinPlot<-function(connectionDetails,
-                     resultDatabaseSchema,
+#' @export incidenceDatePlot
+incidenceDatePlot<-function(connectionDetails,
+                     cohortDatabaseSchema,
                      cohortTable,
                      targetCohortIds,
+                     outputFolder = NULL,
+                     outputFileTitle = NULL,
                      identicalSeriesCriteria,
                      conditionCohortIds,
                      eventCohortIds,
-                     restrictEventDate,
-                     restrictInitialSeries){
+                     restrictEventDate){
   cohortDescript <-cohortDescription()
   # Pull cohort data
   targetCohort<-cohortCycle(connectionDetails,
-                            resultDatabaseSchema,
+                            cohortDatabaseSchema,
                             cohortTable,
                             targetCohortIds,
                             identicalSeriesCriteria,
@@ -59,11 +61,11 @@ violinPlot<-function(connectionDetails,
 
 
   eventCohort<-cohortRecords(connectionDetails,
-                             resultDatabaseSchema,
+                             cohortDatabaseSchema,
                              cohortTable,
                              eventCohortIds)
   eventCohort <- dplyr::left_join(eventCohort,cohortDescript, by= c("cohortDefinitionId"="cohortDefinitionId"))
-  eventCohort <- unique(eventCohort %>% mutate (cycle = 0) %>% select(-type) %>% subset(subjectId %in% targetCohort$subjectId))
+  eventCohort <- unique(eventCohort %>% mutate (cycle = 0) %>% select(-type) %>% subset(subjectId %in% targetCohort$subjectId)) %>% select(-conceptId)
   # Cohort name cycle
   collapsedCohort<-rbind(targetCohort,eventCohort) %>% arrange(subjectId,cohortStartDate) %>% mutate(cohort_cycle = paste0(cycle,'_',
                                                                                                                            cohortName
@@ -85,6 +87,10 @@ violinPlot<-function(connectionDetails,
 
   plotData<-collapsedCohort %>% arrange(cohortName,dateDiff) %>% mutate(category = ifelse(dateDiff<1,'d1',ifelse(dateDiff<=7,'d2-d8',ifelse(dateDiff<=14,'d9-d15',ifelse(dateDiff<=21,'d16-d22',ifelse(dateDiff<=30,'-d30','>d30'))))))
   plotData$category <- factor(plotData$category,levels = c('d1','d2-d8','d9-d15','d16-d22','-d30','>d30'))
+  if(!is.null(outputFolder)){
+  　censoredPlotData <- plotData %>% mutate(subjectId = 1)
+    fileName <- paste0(outputFileTitle,'_','EventIncidenceInDates.csv')
+    write.csv(censoredPlotData, file.path(outputFolder, fileName))}
   # plot
   p <- ggplot(plotData,aes(x=cohortName, y=dateDiff)) +
     geom_violin(size=0.2,scale = 'width') +

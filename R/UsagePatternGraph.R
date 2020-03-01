@@ -13,8 +13,8 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#' annual graph
-#' annual graph in treatment regimen
+#' usagePattern graph
+#' usagePattern graph in treatment regimen
 #' @param connectionDetails
 #' @param vocaDatabaseSchema
 #' @param targetRegimen
@@ -23,25 +23,25 @@
 #' @param outputFolder
 #' @param outputFileTitle
 #' @keywords year
-#' @return annual treatment regimen highcharter graph
+#' @return usagePattern treatment regimen highcharter graph
 #' @examples
 #' @import dplyr
 #' @import tidyr
 #' @import highcharter
-#' @export annualGraph
-annualGraph<-function(connectionDetails,
-                      resultDatabaseSchema,
-                      cohortTable,
-                      targetCohortIds,
-                      conditionCohortIds = NULL,
-                      outputFolder = NULL,
-                      outputFileTitle,
-                      fromYear,
-                      toYear){
+#' @export usagePatternGraph
+usagePatternGraph<-function(connectionDetails,
+                            cohortDatabaseSchema,
+                            cohortTable,
+                            targetCohortIds,
+                            conditionCohortIds = NULL,
+                            outputFolder = NULL,
+                            outputFileTitle = NULL,
+                            fromYear,
+                            toYear){
   ##cohort##
   cohortDescript <- cohortDescription()
   cohortForGraph<-cohortCycle(connectionDetails,
-                              resultDatabaseSchema,
+                              cohortDatabaseSchema,
                               cohortTable,
                               targetCohortIds,
                               identicalSeriesCriteria = 60,
@@ -63,10 +63,12 @@ annualGraph<-function(connectionDetails,
   Year<-rep(c(fromYear:toYear),length(unique(cohortForGraph$Cohort)))
   Cohort<-sort(rep(unique(cohortForGraph$Cohort),length(c(fromYear:toYear))))
   index<-data.frame(Year,Cohort)
+  index$Year <- as.integer(index$Year)
+  index$Cohort<-as.character(index$Cohort)
   plotData<-left_join(index,cohortForGraph)
   plotData[is.na(plotData)]<-0
   h<-plotData %>% highcharter::hchart(.,type="line",hcaes(x = Year,y=proportion,group = Cohort)) %>% hc_xAxis(title = list(text = "Year")) %>% hc_yAxis(title = list(text = "The number of patients treated specific regimen / Total patients received chemotherapy (%)"),from = 0, to =70)
   if(!is.null(outputFolder)){
-    fileName <- paste0(outputFileTitle,'_','AnnualRegimenProportion.csv')
-    write.csv(plotData, file.path(outputFolder, "AnnualRegimenProportion.csv"))}
-  return(list(plotData,h))}
+    fileName <- paste0(outputFileTitle,'_','usagePatternRegimenProportion.csv')
+    write.csv(plotData, file.path(outputFolder, fileName))}
+  return(h)}

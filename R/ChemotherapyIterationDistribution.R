@@ -18,7 +18,7 @@
 #' @param standardData
 #' @param targetId
 #' @param connectionDetails
-#' @param resultDatabaseSchema
+#' @param cohortDatabaseSchema
 #' @param cohortTable
 #' @param targetCohortIds
 #' @param cohortName
@@ -58,16 +58,16 @@ distributionTable <- function(standardData,
 
 #' @export heatmapData
 heatmapData<-function(connectionDetails,
-                      resultDatabaseSchema,
+                      cohortDatabaseSchema,
                       cohortTable,
                       targetCohortIds,
                       outputFolder = NULL,
-                      outputFileTitle,
+                      outputFileTitle = NULL,
                       identicalSeriesCriteria = 60,
                       conditionCohortIds = NULL){
 
   standardCycleData<-cohortCycle(connectionDetails,
-                                 resultDatabaseSchema,
+                                 cohortDatabaseSchema,
                                  cohortTable,
                                  targetCohortIds,
                                  identicalSeriesCriteria,
@@ -76,22 +76,20 @@ heatmapData<-function(connectionDetails,
   heatmapPlotData <-data.table::rbindlist(
     lapply(targetCohortIds,function(targetId){
       plotData<-distributionTable(standardData=standardCycleData,
-                                targetId=targetId)
+                                  targetId=targetId)
       names(plotData) <- c('cycle','n','ratio','cohortName')
-
-      if(!is.null(outputFolder)){
-        fileName <- paste0(outputFileTitle,'_','cycleRepetitionDistribution.csv')
-        write.csv(plotData, file.path(outputFolder, "cycleRepetitionDistribution.csv"))}
       return(plotData)})
   )
-
+  if(!is.null(outputFolder)){
+    fileName <- paste0(outputFileTitle,'_','ChemotherapyIterationDistribution.csv')
+    write.csv(heatmapPlotData, file.path(outputFolder, fileName))}
   return(heatmapPlotData)
 }
 
-#' @export iterationHeatmap
-iterationHeatmap<-function(heatmapPlotData,
-                           maximumCycleNumber = 20,
-                           heatmapColor="Reds"){
+#' @export ChemotherapyIterationDistribution
+ChemotherapyIterationDistribution<-function(heatmapPlotData,
+                                       maximumCycleNumber = 20,
+                                       heatmapColor="Reds"){
   #label
   total<-heatmapPlotData %>%group_by(cohortName) %>% mutate(sum = sum(n)) %>% select (cohortName,sum)
   total<-unique(total)
