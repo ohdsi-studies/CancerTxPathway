@@ -9,7 +9,8 @@ executeExtraction(connectionDetails, oracleTempSchema = NULL,
   vocaDatabaseSchema = cdmDatabaseSchema,
   oncologyDatabaseSchema = cdmDatabaseSchema,
   createCohortTable = FALSE, createEpisodeAndEventTable = FALSE,
-  episodeTable, episodeEventTable, cohortTable, maxCores = 4)
+  createTargetCohort = FALSE, episodeTable, episodeEventTable,
+  cohortTable, maxCores = 4)
 }
 \value{
 Episode table, Episode Event table, cancer cohort

@@ -103,7 +103,7 @@ cycleIncidencePlot<-function(connectionDetails,
   plotData<-left_join(collapsedSummarise,seperateNameIndex) %>% mutate(ratio = event/total)  %>% select(cycle,cohortName,event,total,ratio,cohort_cycle) %>% arrange(cohortName,cycle)
   if(!is.null(outputFolder)){
     fileName <- paste0(outputFileTitle,'_','EventIncidenceInCycle.csv')
-    write.csv(plotData, file.path(outputFolder, fileName))}
+    write.csv(plotData, file.path(outputFolder, fileName),row.names = F)}
   # plot #1 - Incidence Rate
 
   p1 <- ggplot(na.omit(plotData), aes(x = cohort_cycle, y = ratio, group = cohortName, color = cohortName)) +

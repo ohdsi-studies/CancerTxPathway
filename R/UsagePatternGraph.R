@@ -67,8 +67,8 @@ usagePatternGraph<-function(connectionDetails,
   index$Cohort<-as.character(index$Cohort)
   plotData<-left_join(index,cohortForGraph)
   plotData[is.na(plotData)]<-0
-  h<-plotData %>% highcharter::hchart(.,type="line",hcaes(x = Year,y=proportion,group = Cohort)) %>% hc_xAxis(title = list(text = "Year")) %>% hc_yAxis(title = list(text = "The number of patients treated specific regimen / Total patients received chemotherapy (%)"),from = 0, to =70)
+  h<-plotData %>% highcharter::hchart(.,type="line",hcaes(x = Year,y=proportion,group = Cohort)) %>% hc_xAxis(title = list(text = "Year")) %>% hc_yAxis(title = list(text = "Proportion of the regimen treated patients for total chemotherapy received patients (%)"),from = 0, to =70)
   if(!is.null(outputFolder)){
     fileName <- paste0(outputFileTitle,'_','usagePatternRegimenProportion.csv')
-    write.csv(plotData, file.path(outputFolder, fileName))}
+    write.csv(plotData, file.path(outputFolder, fileName),row.names = F)}
   return(h)}

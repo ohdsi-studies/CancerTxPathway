@@ -1,0 +1,220 @@
+---
+title: "Cancer Tx patterns and pathway"
+runtime: shiny
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: rows
+    vertical_layout: scroll
+    theme : yeti
+---
+
+```{r global_packages}
+library(flexdashboard)
+library(shiny)
+library(CancerTxPathway)
+library(dplyr)
+library(highcharter)
+library(plotly)
+library(viridis)
+library(gridExtra)
+library(scales)
+library(hrbrthemes)
+library(ggplot2)
+```
+
+Usage Patterns
+================================
+
+Row
+-------------------------------------
+
+### Treatment Pathway
+
+```{r, echo=FALSE,fig.keep='all'}
+outputFolder <- 'C:/work/output'
+outputFileTitle <- 'BreastCancer_2008'
+fileNameNodes <- paste0(outputFileTitle,'_','SankeyNodes.csv')
+fileNameLinks <- paste0(outputFileTitle,'_','SankeyLinks.csv')
+nodesPath <- file.path(outputFolder, fileNameNodes)
+linksPath <- file.path(outputFolder, fileNameLinks)
+nodes<-read.csv(nodesPath,stringsAsFactors = F)
+links<-read.csv(linksPath,stringsAsFactors = F)
+networkD3::sankeyNetwork(Links = links, Nodes = nodes, Source = "source",Target = "target", Value = "value", NodeID = "name", fontSize = 12, nodeWidth = 30,sinksRight = FALSE)
+```
+
+Row
+-------------------------------------
+
+### Usage patterns of the treatment
+
+```{r}
+outputFolder <- 'C:/work/output'
+outputFileTitle <- 'BreastCancer_2008'
+fileNameUsage <- paste0(outputFileTitle,'_','usagePatternRegimenProportion.csv')
+UsagePath <- file.path(outputFolder, fileNameUsage)
+plotData <- read.csv(UsagePath,stringsAsFactors = F)
+plotData %>% highcharter::hchart(.,type="line",hcaes(x = Year,y=proportion,group = Cohort)) %>% hc_xAxis(title = list(text = "Year")) %>% hc_yAxis(title = list(text = "The number of patients treated specific regimen / Total patients received chemotherapy (%)"),from = 0, to =70)
+
+```
+
+### Treatment Iteration Distribution
+
+```{r, echo=FALSE,results='hide',fig.keep='all', fig.width = 12, fig.height=7,dpi = 600}
+outputFolder <- 'C:/work/output'
+outputFileTitle <- 'BreastCancer_2008'
+maximumCycleNumber <- 18
+heatmapColor <-  "Blues"
+fileNameIteration<- paste0(outputFileTitle,'_','ChemotherapyIterationDistribution.csv')
+IterationPath <- file.path(outputFolder, fileNameIteration)
+heatmapPlotData <- read.csv(IterationPath,stringsAsFactors = F)
+total<-heatmapPlotData %>%group_by(cohortName) %>% mutate(sum = sum(n)) %>% select (cohortName,sum)
+total<-unique(total)
+total$label<-paste0(total$cohortName,' \n','(n = ',total$sum,')')
+
+heatmapPlotDataN <- as_tibble(heatmapPlotData) %>% mutate(ratioLabel = paste0(ratio,'\n','(n = ',n,')')) %>%  select(cycle, cohortName, ratioLabel)%>% subset(cycle <=maximumCycleNumber)
+plotDataN <- tidyr::spread(heatmapPlotDataN, cycle, ratioLabel)
+plotDataN[is.na(plotDataN)] <- 0
+plotDataN$cohortName <- NULL
+#data pre-processing
+heatmapPlotData <- as_tibble(heatmapPlotData) %>% select(cycle, cohortName, ratio) %>% subset(cycle <=maximumCycleNumber)
+class(heatmapPlotData$ratio) = "dbl"
+plotData <- tidyr::spread(heatmapPlotData, cycle, ratio)
+plotDataNMatrix<-as.matrix(plotDataN)
+sort.order <- order(plotDataNMatrix[,1])
+
+plotData <- left_join(plotData,total,by = c("cohortName"="cohortName"))
+plotData <- as.data.frame(plotData)
+plotData[is.na(plotData)] <- 0
+
+row.names(plotData) <- plotData$label
+plotData$cohortName <- NULL
+plotData$sum <- NULL
+plotData$label <- NULL
+sort.order <- order(plotData[,1])
+label<-as.matrix(plotDataN)
+superheat::superheat(plotData,
+                     X.text = label,
+                     X.text.size = 3,
+                     scale = FALSE,
+                     left.label.text.size=3,
+                     left.label.text.alignment = "left",
+                     left.label.size = 0.3,
+                     bottom.label.text.size=4,
+                     bottom.label.size = .05,
+                     heat.pal = RColorBrewer::brewer.pal(9, heatmapColor),
+                     heat.pal.values = c(seq(0,0.3,length.out = 8),1),
+                     order.rows = sort.order,
+                     title = "Trends of the treatment iteration")
+
+```
+
+Event Incidence In Treatment Iteration
+================================
+
+Row {data-height = 600}
+--------------------------------
+
+### Incidence of the adverse event after each treatment iteration
+
+```{r, echo=FALSE,results='hide',fig.keep='all',fig.width = 12, fig.height=7,dpi = 1000}
+outputFolder <- 'C:/work/output'
+outputFileTitle <- 'BreastCancer_2008'
+fileNameEventIncidenceInCycle<- paste0(outputFileTitle,'_','EventIncidenceInCycle.csv')
+fileNameEventIncidenceInCyclePath <- file.path(outputFolder, fileNameEventIncidenceInCycle)
+plotData <- read.csv(fileNameEventIncidenceInCyclePath,stringsAsFactors = F)
+p1 <- ggplot(na.omit(plotData), aes(x = cohort_cycle, y = ratio, group = cohortName, color = cohortName)) +
+  theme_bw() +
+  scale_x_discrete(limits = na.omit(plotData)$cohort_cycle) +
+  geom_point(size = 2, aes(fill = cohortName)) +
+  geom_text(aes(label = percent(round(ratio, 2))),
+            size = 4, hjust = -0.01, vjust = -0.2, fontface = "plain") +
+  geom_smooth(size = 1.0, method = 'lm', aes(fill = cohortName)) +
+  scale_fill_viridis(discrete=TRUE) +
+  scale_color_viridis(discrete=TRUE) +
+  theme(legend.position='none',
+        plot.title = element_text(size=20, face="bold", vjust=2),
+        axis.title.x = element_blank(),
+        axis.title.y = element_text(size=13),
+        axis.text = element_blank(),
+        axis.ticks.x = element_blank(),
+        axis.ticks.y = element_blank(),
+        panel.border = element_blank(),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank()) +
+  labs(y = 'Incidence Rate')
+
+
+# plot #2 - number of Incidence
+p2 <- ggplot(na.omit(plotData), aes(x = cohort_cycle, group = cohortName, color = cohortName)) +
+  theme_bw() +
+  scale_x_discrete(limits = na.omit(plotData)$cohort_cycle) +
+  geom_bar(aes(y = total, fill = cohortName), alpha = 0.2, stat = 'identity',show.legend = TRUE) +
+  geom_bar(aes(y = event, fill = cohortName), alpha = 0.6, stat = 'identity',show.legend = FALSE) +
+  geom_text(aes(y = total, label = paste(event,'/',total)),
+            angle = 90, size = 4, hjust = -0.1, vjust = 0.4,check_overlap = TRUE,show.legend = FALSE, position = position_dodge(width = 0.6)) +
+  geom_text(aes(y = 0, label = cycle), angle = 90, size = 4, hjust = 1.25, vjust = 0.4,check_overlap = TRUE,show.legend = FALSE) +
+  scale_fill_viridis(discrete=TRUE) +
+  scale_color_viridis(discrete=TRUE) +
+  theme(legend.position='bottom',
+        legend.title=element_blank(),
+        plot.title = element_text(size=20, vjust=2),
+        axis.title.x = element_text(size=13),
+        axis.title.y = element_text(size=13),
+        axis.text = element_blank(),
+        axis.ticks.x = element_blank(),
+        axis.ticks.y = element_blank(),
+        panel.border = element_blank(),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank()) +
+  scale_y_continuous(limits = c(0, max(plotData$total * 1.1))) +
+  labs(x = 'Iteration Number of treatment', y = 'Number of Incidence')
+
+# multiplot
+grid.arrange(p1, p2, ncol = 1)
+
+```
+
+Row {data-height = 500}
+--------------------------------
+
+### Adverse event onset timing after first treatment 
+
+```{r, echo=FALSE,fig.keep='all'}
+outputFolder <- 'C:/work/output'
+outputFileTitle <- 'BreastCancer_2008'
+fileNameEventIncidenceInDates<- paste0(outputFileTitle,'_','EventIncidenceInDates.csv')
+fileNameEventIncidenceInDatesPath <- file.path(outputFolder, fileNameEventIncidenceInDates)
+plotData <- read.csv(fileNameEventIncidenceInDatesPath,stringsAsFactors = F)
+p <- ggplot(plotData,aes(x=cohortName, y=dateDiff)) +
+  geom_violin(size=0.2,scale = 'width') +
+  ggbeeswarm::geom_quasirandom(size = 1,aes(color = category))+
+  scale_color_viridis(discrete=TRUE) + theme_ipsum() +
+  theme(
+    legend.position= 'bottom',legend.title=element_blank()
+  ) +
+  coord_flip() +
+  xlab("") +
+  ylab("Time from discharge (days)")
+
+renderPlotly(plotly::ggplotly(p) %>% layout(legend = list(orientation = 'h',y=-0.1,x=0)))
+
+```   
+
+About
+================================
+
+Copyright 2020 Observational Health Data Sciences and Informatics
+
+This file is part of CancerTxPathway
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.

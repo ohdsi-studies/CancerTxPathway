@@ -26,6 +26,7 @@
 #' @param episodeEventTable
 #' @param cohortTable
 #' @param maxCores
+#' @param createTargetCohort
 #' @keywords
 #' @return Episode table, Episode Event table, cancer cohort
 #' @examples
@@ -39,12 +40,14 @@ executeExtraction <- function(connectionDetails,
                               oncologyDatabaseSchema = cdmDatabaseSchema,
                               createCohortTable = FALSE,
                               createEpisodeAndEventTable = FALSE,
+                              createTargetCohort = FALSE,
                               episodeTable,
                               episodeEventTable,
                               cohortTable,
                               maxCores = 4
 ){
-  ## create cohorts
+  ## create target cohorts
+  if(createTargetCohort){
   createCohort(createCohortTable = createCohortTable,
                connectionDetails = connectionDetails,
                oracleTempSchema = oracleTempSchema,
@@ -53,7 +56,7 @@ executeExtraction <- function(connectionDetails,
                vocaDatabaseSchema = vocaDatabaseSchema,
                cohortTable = cohortTable,
                includeConceptIdSetDescendant = TRUE
-  )
+  )}
 
   pathToCsv <- system.file("csv", "RegimenConceptId.csv", package = "CancerTxPathway")
   regimenConceptId <- read.csv(pathToCsv)

@@ -138,9 +138,9 @@ treatmentPathway<-function(connectionDetails,
   treatment <-list(nodes=nodes,links=links)
   if(!is.null(outputFolder)){
     fileNameNodes <- paste0(outputFileTitle,'_','SankeyNodes.csv')
-    write.csv(nodes, file.path(outputFolder, fileNameNodes))
+    write.csv(nodes, file.path(outputFolder, fileNameNodes),row.names = F)
     fileNameLinks <- paste0(outputFileTitle,'_','SankeyLinks.csv')
-    write.csv(links, file.path(outputFolder, fileNameLinks))}
+    write.csv(links, file.path(outputFolder, fileNameLinks),row.names = F)}
   treatmentPathway <- networkD3::sankeyNetwork(Links = treatment$links, Nodes = treatment$nodes, Source = "source",Target = "target", Value = "value", NodeID = "name", fontSize = 12, nodeWidth = 30,sinksRight = FALSE)
   return(treatmentPathway)
 }

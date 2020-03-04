@@ -81,13 +81,13 @@ heatmapData<-function(connectionDetails,
       return(plotData)})
   )
   if(!is.null(outputFolder)){
-    fileName <- paste0(outputFileTitle,'_','ChemotherapyIterationDistribution.csv')
-    write.csv(heatmapPlotData, file.path(outputFolder, fileName))}
+    fileName <- paste0(outputFileTitle,'_','treatmentIterationDistribution.csv')
+    write.csv(heatmapPlotData, file.path(outputFolder, fileName),row.names = F)}
   return(heatmapPlotData)
 }
 
-#' @export ChemotherapyIterationDistribution
-ChemotherapyIterationDistribution<-function(heatmapPlotData,
+#' @export treatmentIterationDistribution
+treatmentIterationDistribution<-function(heatmapPlotData,
                                        maximumCycleNumber = 20,
                                        heatmapColor="Reds"){
   #label
@@ -118,15 +118,16 @@ ChemotherapyIterationDistribution<-function(heatmapPlotData,
   label<-as.matrix(plotDataN)
   heatmap<-superheat::superheat(plotData,
                                 X.text = label,
-                                X.text.size = 4,
+                                X.text.size = 2,
                                 scale = FALSE,
                                 left.label.text.size=4,
+                                left.label.text.alignment = "left",
                                 left.label.size = 0.3,
                                 bottom.label.text.size=4,
                                 bottom.label.size = .05,
                                 heat.pal = RColorBrewer::brewer.pal(9, heatmapColor),
                                 heat.pal.values = c(seq(0,0.3,length.out = 8),1),
                                 order.rows = sort.order,
-                                title = "Trends of the Repetition")
+                                title = "Trends of the treatment iteration")
   return(heatmap)
 }

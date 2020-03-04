@@ -90,7 +90,7 @@ incidenceDatePlot<-function(connectionDetails,
   if(!is.null(outputFolder)){
   　censoredPlotData <- plotData %>% mutate(subjectId = 1)
     fileName <- paste0(outputFileTitle,'_','EventIncidenceInDates.csv')
-    write.csv(censoredPlotData, file.path(outputFolder, fileName))}
+    write.csv(censoredPlotData, file.path(outputFolder, fileName),row.names = F)}
   # plot
   p <- ggplot(plotData,aes(x=cohortName, y=dateDiff)) +
     geom_violin(size=0.2,scale = 'width') +
