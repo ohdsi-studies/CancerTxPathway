@@ -8,8 +8,8 @@ Visualization tool for sankey for regimen and surgery}
 CancerTxPatterns(connectionDetails, oracleTempSchema, cdmDatabaseSchema,
   cohortDatabaseSchema, oncologyDatabaseSchema, vocaDatabaseSchema,
   cohortTable, episodeTable, outputFolder, outputFileTitle,
-  targetCohortIds, episodeCohortCreate, fromYear, toYear,
-  identicalSeriesCriteria, maximumCycleNumber, heatmapColor,
+  targetCohortIds, episodeCohortCreate, createEpisodeCohortTable, fromYear,
+  toYear, identicalSeriesCriteria, maximumCycleNumber, heatmapColor,
   nodeMinSubject, collapseDates, conditionCohortIds, treatmentLine,
   minimumRegimenChange, surgeryCohortIds, eventCohortIds, targetMin)
 }

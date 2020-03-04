@@ -35,3 +35,59 @@ executeExtraction(connectionDetails,
                   episodeEventTable,
                   cohortTable,
                   maxCores = 4)
+
+
+outputFolder <- 'output folder path'
+outputFileTitle <- 'output file title'
+targetCohortIds <- c(1,2,3,4,5,6,7,8)
+episodeCohortCreate <- FALSE
+
+# Usage Pattern graph
+fromYear <- 2008
+toYear <- 2018
+
+# Iteration Heatmap
+identicalSeriesCriteria <- 60
+maximumCycleNumber <- 18
+heatmapColor <-  "Blues" # 'Reds','Greens'
+
+# Treatment Pathway
+nodeMinSubject <- 10 # 10 means under 10 patients nodes are removed from pathway graph
+collapseDates <- 0
+conditionCohortIds <- NULL # restrict target patients with certain condition_occurrence
+treatmentLine <- 3 # Treatment line number for visualize in graph
+minimumRegimenChange <- 1 # target patients for at least '1' regimen change
+
+# Cohort for surgery and event
+surgeryCohortIds <- 9 # Colectomy
+eventCohortIds <- 10 # Neutropenia
+
+targetMin <- 20 # minimum patients number to show in incidence for cycle graph
+
+plots <- CancerTxPatterns(connectionDetails,
+                          oracleTempSchema,
+                          cdmDatabaseSchema,
+                          cohortDatabaseSchema,
+                          oncologyDatabaseSchema,
+                          vocaDatabaseSchema,
+                          cohortTable,
+                          episodeTable,
+                          outputFolder,
+                          outputFileTitle,
+                          targetCohortIds,
+                          episodeCohortCreate,
+                          createEpisodeCohortTable,
+                          fromYear,
+                          toYear,
+                          identicalSeriesCriteria,
+                          maximumCycleNumber,
+                          heatmapColor,
+                          nodeMinSubject,
+                          collapseDates,
+                          conditionCohortIds,
+                          treatmentLine,
+                          minimumRegimenChange,
+                          surgeryCohortIds,
+                          eventCohortIds,
+                          targetMin)
+

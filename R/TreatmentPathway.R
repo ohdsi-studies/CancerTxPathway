@@ -41,7 +41,7 @@ treatmentPathway<-function(connectionDetails,
                         conditionCohortIds=NULL,
                         targetCohortIds,
                         eventCohortIds=NULL,
-                        minimumRegimenChange = 0,
+                        minimumRegimenChange = 1,
                         treatmentLine = 3,
                         collapseDates = 0,
                         nodeMinSubject = 0
@@ -53,7 +53,7 @@ treatmentPathway<-function(connectionDetails,
                               cohortTable,
                               targetCohortIds,
                               identicalSeriesCriteria = 60,
-                              conditionCohortIds = NULL)
+                              conditionCohortIds)
   cohortForGraph <- cohortForGraph %>% subset(cycle == 1)
   cohortData <- cohortForGraph %>% select(-cohortName,-cycle)
   cohortData$cohortStartDate<-as.Date(cohortData$cohortStartDate)
@@ -97,7 +97,7 @@ treatmentPathway<-function(connectionDetails,
     return(reconstructedRecords)}))
   ##Set minimum regimen change count##
   eventAndTarget<-collapsedRecords
-  minimunIndexId<-unique(eventAndTarget %>% arrange(subjectId,cohortStartDate) %>% group_by(subjectId) %>% mutate(line = row_number()) %>% subset(line >= minimumRegimenChange) %>% select(subjectId) %>% ungroup())
+  minimunIndexId<-unique(eventAndTarget %>% arrange(subjectId,cohortStartDate) %>% group_by(subjectId) %>% mutate(line = row_number()) %>% subset(line >= minimumRegimenChange+1) %>% select(subjectId) %>% ungroup())
   eventAndTarget<-eventAndTarget %>% subset(subjectId %in% minimunIndexId$subjectId) %>% arrange(subjectId,cohortStartDate)
   ##Maximum treatment line in graph##
   eventAndTarget <- eventAndTarget %>% group_by(subjectId) %>% arrange(subjectId,cohortStartDate) %>% mutate(rowNumber = row_number()) %>% subset(rowNumber <= treatmentLine) %>% select(subjectId,cohortName,rowNumber) %>% mutate(nameOfConcept = paste0(rowNumber,'_',cohortName)) %>% ungroup()

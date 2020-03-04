@@ -15,7 +15,6 @@
 # limitations under the License.
 #' createEpisodeCohort
 #' Create cohort of interest by using condition concept Ids.
-#' @param createEpisodeCohortTable
 #' @param connectionDetails
 #' @param oracleTempSchema
 #' @param cdmDatabaseSchema
@@ -29,36 +28,24 @@
 #' @param targetCohortId
 #' @param cycle
 #' @export createEpisodeCohort
-createEpisodeCohort <- function(createEpisodeCohortTable = F,
-                         connectionDetails,
-                         oracleTempSchema = NULL,
-                         cdmDatabaseSchema,
-                         cohortDatabaseSchema,
-                         oncologyDatabaseSchema,
-                         vocabularyDatabaseSchema = cdmDatabaseSchema,
-                         cohortTable,
-                         episodeTable,
-                         conceptIdSet = c(),
-                         includeConceptIdSetDescendant = F,
-                         collapseGapSize=0,
-                         targetCohortId,
-                         cycle = TRUE){
+createEpisodeCohort <- function(
+  connectionDetails,
+  oracleTempSchema = NULL,
+  cdmDatabaseSchema,
+  cohortDatabaseSchema,
+  oncologyDatabaseSchema,
+  vocabularyDatabaseSchema = cdmDatabaseSchema,
+  cohortTable,
+  episodeTable,
+  conceptIdSet = c(),
+  includeConceptIdSetDescendant = F,
+  collapseGapSize=0,
+  targetCohortId,
+  cycle = TRUE){
   if(length(targetCohortId) != 1) stop ("specify targetCohortId as one integer. It cannot be multiple.")
   if(length(as.numeric(conceptIdSet)) <1 ) stop ("please specify concept Id Set as a numeric vector")
 
   connection <- DatabaseConnector::connect(connectionDetails = connectionDetails)
-
-  if(createEpisodeCohortTable){
-    ParallelLogger::logInfo("Creating table for the cohorts")
-    sql <- SqlRender::loadRenderTranslateSql(sqlFilename= "createEpisodeCohortTable.sql",
-                                             packageName = "CancerTxPathway",
-                                             dbms = attr(connection,"dbms"),
-                                             oracleTempSchema = oracleTempSchema,
-                                             cohort_database_schema = cohortDatabaseSchema,
-                                             cohort_table = cohortTable)
-    DatabaseConnector::executeSql(connection, sql, progressBar = TRUE, reportOverallTime = TRUE)
-  }
-
   ParallelLogger::logInfo("Insert cohort of interest into the cohort table")
   if(cycle == TRUE){sql <- SqlRender::loadRenderTranslateSql(sqlFilename= "CreateTreatmentCycleCohort.sql",
                                                              packageName = "CancerTxPathway",

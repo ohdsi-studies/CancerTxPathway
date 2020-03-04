@@ -8,7 +8,7 @@ Visualization tool for sankey for regimen and surgery}
 treatmentPathway(connectionDetails, cohortDatabaseSchema, cohortTable,
   outputFolder = NULL, outputFileTitle = NULL,
   conditionCohortIds = NULL, targetCohortIds, eventCohortIds = NULL,
-  minimumRegimenChange = 0, treatmentLine = 3, collapseDates = 0,
+  minimumRegimenChange = 1, treatmentLine = 3, collapseDates = 0,
   nodeMinSubject = 0)
 }
 \value{

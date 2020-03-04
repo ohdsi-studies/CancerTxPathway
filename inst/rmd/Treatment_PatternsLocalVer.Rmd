@@ -4,7 +4,6 @@ runtime: shiny
 output: 
   flexdashboard::flex_dashboard:
     orientation: rows
-    vertical_layout: scroll
     theme : yeti
 ---
 
@@ -22,7 +21,7 @@ library(hrbrthemes)
 library(ggplot2)
 ```
 
-Usage Patterns
+Usage Patterns {data-orientation=rows}
 ================================
 
 Row
@@ -33,6 +32,8 @@ Row
 ```{r, echo=FALSE,fig.keep='all'}
 outputFolder <- 'C:/work/output'
 outputFileTitle <- 'BreastCancer_2008'
+maximumCycleNumber <- 18
+heatmapColor <-  "Blues"
 fileNameNodes <- paste0(outputFileTitle,'_','SankeyNodes.csv')
 fileNameLinks <- paste0(outputFileTitle,'_','SankeyLinks.csv')
 nodesPath <- file.path(outputFolder, fileNameNodes)
@@ -48,8 +49,7 @@ Row
 ### Usage patterns of the treatment
 
 ```{r}
-outputFolder <- 'C:/work/output'
-outputFileTitle <- 'BreastCancer_2008'
+
 fileNameUsage <- paste0(outputFileTitle,'_','usagePatternRegimenProportion.csv')
 UsagePath <- file.path(outputFolder, fileNameUsage)
 plotData <- read.csv(UsagePath,stringsAsFactors = F)
@@ -57,14 +57,11 @@ plotData %>% highcharter::hchart(.,type="line",hcaes(x = Year,y=proportion,group
 
 ```
 
-### Treatment Iteration Distribution
+### Treatment Iteration Distribution {.no-padding}
 
-```{r, echo=FALSE,results='hide',fig.keep='all', fig.width = 12, fig.height=7,dpi = 600}
-outputFolder <- 'C:/work/output'
-outputFileTitle <- 'BreastCancer_2008'
-maximumCycleNumber <- 18
-heatmapColor <-  "Blues"
-fileNameIteration<- paste0(outputFileTitle,'_','ChemotherapyIterationDistribution.csv')
+```{r, echo=FALSE,results='hide',fig.width=11,dpi = 100}
+
+fileNameIteration<- paste0(outputFileTitle,'_','treatmentIterationDistribution.csv')
 IterationPath <- file.path(outputFolder, fileNameIteration)
 heatmapPlotData <- read.csv(IterationPath,stringsAsFactors = F)
 total<-heatmapPlotData %>%group_by(cohortName) %>% mutate(sum = sum(n)) %>% select (cohortName,sum)
@@ -108,17 +105,16 @@ superheat::superheat(plotData,
 
 ```
 
-Event Incidence In Treatment Iteration
+Event Incidence In Treatment Iteration 
 ================================
 
-Row {data-height = 600}
+Row {data-width = 600}
 --------------------------------
 
-### Incidence of the adverse event after each treatment iteration
+### Incidence of the adverse event after each treatment iteration {data-vertical_layout=scroll}
 
-```{r, echo=FALSE,results='hide',fig.keep='all',fig.width = 12, fig.height=7,dpi = 1000}
-outputFolder <- 'C:/work/output'
-outputFileTitle <- 'BreastCancer_2008'
+```{r, echo=FALSE,results='hide',fig.keep='all',fig.width = 4,fig.height = 7, dpi = 100}
+
 fileNameEventIncidenceInCycle<- paste0(outputFileTitle,'_','EventIncidenceInCycle.csv')
 fileNameEventIncidenceInCyclePath <- file.path(outputFolder, fileNameEventIncidenceInCycle)
 plotData <- read.csv(fileNameEventIncidenceInCyclePath,stringsAsFactors = F)
@@ -174,14 +170,12 @@ grid.arrange(p1, p2, ncol = 1)
 
 ```
 
-Row {data-height = 500}
+Row {data-width = 500}
 --------------------------------
 
-### Adverse event onset timing after first treatment 
+### Adverse event onset timing after first treatment {data-vertical_layout=scroll}
 
 ```{r, echo=FALSE,fig.keep='all'}
-outputFolder <- 'C:/work/output'
-outputFileTitle <- 'BreastCancer_2008'
 fileNameEventIncidenceInDates<- paste0(outputFileTitle,'_','EventIncidenceInDates.csv')
 fileNameEventIncidenceInDatesPath <- file.path(outputFolder, fileNameEventIncidenceInDates)
 plotData <- read.csv(fileNameEventIncidenceInDatesPath,stringsAsFactors = F)
@@ -196,7 +190,7 @@ p <- ggplot(plotData,aes(x=cohortName, y=dateDiff)) +
   xlab("") +
   ylab("Time from discharge (days)")
 
-renderPlotly(plotly::ggplotly(p) %>% layout(legend = list(orientation = 'h',y=-0.1,x=0)))
+plotly::ggplotly(p) %>% layout(legend = list(orientation = 'h',y=-0.1,x=0))
 
 ```   
 

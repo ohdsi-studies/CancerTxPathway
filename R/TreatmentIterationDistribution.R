@@ -72,7 +72,7 @@ heatmapData<-function(connectionDetails,
                                  targetCohortIds,
                                  identicalSeriesCriteria,
                                  conditionCohortIds)
-
+  targetCohortIds<-targetCohortIds[targetCohortIds %in% unique(standardCycleData$cohortDefinitionId)]
   heatmapPlotData <-data.table::rbindlist(
     lapply(targetCohortIds,function(targetId){
       plotData<-distributionTable(standardData=standardCycleData,
@@ -88,8 +88,8 @@ heatmapData<-function(connectionDetails,
 
 #' @export treatmentIterationDistribution
 treatmentIterationDistribution<-function(heatmapPlotData,
-                                       maximumCycleNumber = 20,
-                                       heatmapColor="Reds"){
+                                         maximumCycleNumber = 20,
+                                         heatmapColor="Reds"){
   #label
   total<-heatmapPlotData %>%group_by(cohortName) %>% mutate(sum = sum(n)) %>% select (cohortName,sum)
   total<-unique(total)
@@ -118,9 +118,9 @@ treatmentIterationDistribution<-function(heatmapPlotData,
   label<-as.matrix(plotDataN)
   heatmap<-superheat::superheat(plotData,
                                 X.text = label,
-                                X.text.size = 2,
+                                X.text.size = 3,
                                 scale = FALSE,
-                                left.label.text.size=4,
+                                left.label.text.size=3,
                                 left.label.text.alignment = "left",
                                 left.label.size = 0.3,
                                 bottom.label.text.size=4,

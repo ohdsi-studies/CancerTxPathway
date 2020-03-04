@@ -5,12 +5,11 @@
 \title{createEpisodeCohort
 Create cohort of interest by using condition concept Ids.}
 \usage{
-createEpisodeCohort(createEpisodeCohortTable = F, connectionDetails,
-  oracleTempSchema = NULL, cdmDatabaseSchema, cohortDatabaseSchema,
-  oncologyDatabaseSchema, vocabularyDatabaseSchema = cdmDatabaseSchema,
-  cohortTable, episodeTable, conceptIdSet = c(),
-  includeConceptIdSetDescendant = F, collapseGapSize = 0,
-  targetCohortId, cycle = TRUE)
+createEpisodeCohort(connectionDetails, oracleTempSchema = NULL,
+  cdmDatabaseSchema, cohortDatabaseSchema, oncologyDatabaseSchema,
+  vocabularyDatabaseSchema = cdmDatabaseSchema, cohortTable,
+  episodeTable, conceptIdSet = c(), includeConceptIdSetDescendant = F,
+  collapseGapSize = 0, targetCohortId, cycle = TRUE)
 }
 \description{
 createEpisodeCohort
