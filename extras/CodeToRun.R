@@ -1,3 +1,27 @@
+install.packages("DatabaseConnector")
+install.packages("collapsibleTree")
+install.packages("data.table")
+install.packages("dplyr")
+install.packages("ggplot2")
+install.packages("ggthemes")
+install.packages("reshape2")
+install.packages("scales")
+install.packages("highcharter")
+install.packages("gridExtra")
+install.packages("viridis")
+install.packages("tidyverse")
+install.packages("hrbrthemes")
+install.packages("plotly")
+install.packages("SqlRender")
+install.packages("superheat")
+install.packages("listviewer")
+install.packages("tidyr")
+install.packages("RColorBrewer")
+install.packages("networkD3")
+install.packages("ggbeeswarm")
+install.packages("flexdashboard")
+library(flexdashboard)
+
 # Details for connecting to the server:
 connectionDetails <- DatabaseConnector::createConnectionDetails(dbms='pdw',
                                                                 server=Sys.getenv("PDW_SERVER"),
