@@ -53,11 +53,11 @@ plotData %>% highcharter::hchart(.,type="line",hcaes(x = Year,y=proportion,group
 
 ```
 
-### Treatment Iteration Distribution {.no-padding}
+### Treatment Iteration Heatmap {.no-padding}
 
 ```{r, echo=FALSE,results='hide',fig.width=11,dpi = 100}
 
-fileNameIteration<- paste0(outputFileTitle,'_','treatmentIterationDistribution.csv')
+fileNameIteration<- paste0(outputFileTitle,'_','treatmentIterationHeatmap.csv')
 IterationPath <- file.path(outputFolder, fileNameIteration)
 heatmapPlotData <- read.csv(IterationPath,stringsAsFactors = F)
 total<-heatmapPlotData %>%group_by(cohortName) %>% mutate(sum = sum(n)) %>% select (cohortName,sum)

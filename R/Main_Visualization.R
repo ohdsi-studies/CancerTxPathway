@@ -127,7 +127,7 @@ CancerTxPatterns<-function(connectionDetails,
                                outputFileTitle,
                                identicalSeriesCriteria,
                                conditionCohortIds)
-  heatmap<-treatmentIterationDistribution(heatmapPlotData,
+  heatmap<-TreatmentIterationHeatmap(heatmapPlotData,
                                           maximumCycleNumber,
                                           heatmapColor)
   ParallelLogger::logInfo("Drawing a flow chart of the treatment pathway...")

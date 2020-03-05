@@ -81,13 +81,13 @@ heatmapData<-function(connectionDetails,
       return(plotData)})
   )
   if(!is.null(outputFolder)){
-    fileName <- paste0(outputFileTitle,'_','treatmentIterationDistribution.csv')
+    fileName <- paste0(outputFileTitle,'_','treatmentIterationHeatmap.csv')
     write.csv(heatmapPlotData, file.path(outputFolder, fileName),row.names = F)}
   return(heatmapPlotData)
 }
 
-#' @export treatmentIterationDistribution
-treatmentIterationDistribution<-function(heatmapPlotData,
+#' @export treatmentIterationHeatmap
+treatmentIterationHeatmap<-function(heatmapPlotData,
                                          maximumCycleNumber = 20,
                                          heatmapColor="Reds"){
   #label
