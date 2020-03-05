@@ -30,10 +30,6 @@ Row
 ### Treatment Pathway
 
 ```{r, echo=FALSE,fig.keep='all'}
-outputFolder <- 'C:/work/output'
-outputFileTitle <- 'BreastCancer_2008'
-maximumCycleNumber <- 18
-heatmapColor <-  "Blues"
 fileNameNodes <- paste0(outputFileTitle,'_','SankeyNodes.csv')
 fileNameLinks <- paste0(outputFileTitle,'_','SankeyLinks.csv')
 nodesPath <- file.path(outputFolder, fileNameNodes)
