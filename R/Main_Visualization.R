@@ -139,7 +139,7 @@ CancerTxPatterns<-function(connectionDetails,
                                      conditionCohortIds,
                                      targetCohortIds,
                                      eventCohortIds = surgeryCohortIds,
-                                     minimumRegimenChange = 0,
+                                     minimumRegimenChange,
                                      treatmentLine,
                                      collapseDates,
                                      nodeMinSubject)
