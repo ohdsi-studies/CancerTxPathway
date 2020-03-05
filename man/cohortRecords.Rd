@@ -5,7 +5,7 @@
 \title{CallRawData
 Bring the chemotherapy raw data table.}
 \usage{
-cohortRecords(connectionDetails, resultDatabaseSchema, cohortTable,
+cohortRecords(connectionDetails, cohortDatabaseSchema, cohortTable,
   targetCohortIds)
 }
 \value{

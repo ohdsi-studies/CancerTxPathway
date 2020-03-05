@@ -1,4 +1,4 @@
-SELECT distinct subject_id, drug.drug_concept_id, CAST(DRUG_EXPOSURE_START_DATETIME as date) as drug_exposure_start_date, CAST(drug_exposure_end_date as date) as drug_exposure_end_date
+SELECT distinct subject_id, drug.drug_concept_id, CAST(DRUG_EXPOSURE_START_DATE as date) as drug_exposure_start_date, CAST(drug_exposure_end_date as date) as drug_exposure_end_date
 ,drug.drug_exposure_id
 FROM @result_database_schema.@cohort_table AS cohort
 JOIN @cdm_database_schema.drug_exposure AS drug

@@ -62,8 +62,7 @@ insertEpisodeToDatabase <- function(connectionDetails,
                                     oncologyDatabaseSchema,
                                     episodeTable,
                                     episodeEventTable,
-                                    episodeAndEpisodeEvent,
-                                    oracleTempSchema = NULL){
+                                    episodeAndEpisodeEvent){
   conn <- DatabaseConnector::connect(connectionDetails)
 
   episodeRecordsTable <- episodeAndEpisodeEvent[[1]]

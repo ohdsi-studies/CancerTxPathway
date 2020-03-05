@@ -18,12 +18,14 @@
 #' @param standardData
 #' @param targetId
 #' @param connectionDetails
-#' @param resultDatabaseSchema
+#' @param cohortDatabaseSchema
 #' @param cohortTable
 #' @param targetCohortIds
 #' @param cohortName
 #' @param identicalSeriesCriteria
 #' @param heatmapPlotData
+#' @param outputFolder
+#' @param outputFileTitle
 #' @param maximumCycleNumber
 #' @param heatmapColor
 #' @keywords heatmap
@@ -56,34 +58,38 @@ distributionTable <- function(standardData,
 
 #' @export heatmapData
 heatmapData<-function(connectionDetails,
-                      resultDatabaseSchema,
+                      cohortDatabaseSchema,
                       cohortTable,
                       targetCohortIds,
+                      outputFolder = NULL,
+                      outputFileTitle = NULL,
                       identicalSeriesCriteria = 60,
                       conditionCohortIds = NULL){
 
   standardCycleData<-cohortCycle(connectionDetails,
-                                 resultDatabaseSchema,
+                                 cohortDatabaseSchema,
                                  cohortTable,
                                  targetCohortIds,
                                  identicalSeriesCriteria,
                                  conditionCohortIds)
-
+  targetCohortIds<-targetCohortIds[targetCohortIds %in% unique(standardCycleData$cohortDefinitionId)]
   heatmapPlotData <-data.table::rbindlist(
     lapply(targetCohortIds,function(targetId){
-      result<-distributionTable(standardData=standardCycleData,
-                                targetId=targetId)
-      names(result) <- c('cycle','n','ratio','cohortName')
-      return(result)})
+      plotData<-distributionTable(standardData=standardCycleData,
+                                  targetId=targetId)
+      names(plotData) <- c('cycle','n','ratio','cohortName')
+      return(plotData)})
   )
-
+  if(!is.null(outputFolder)){
+    fileName <- paste0(outputFileTitle,'_','treatmentIterationHeatmap.csv')
+    write.csv(heatmapPlotData, file.path(outputFolder, fileName),row.names = F)}
   return(heatmapPlotData)
 }
 
-#' @export iterationHeatmap
-iterationHeatmap<-function(heatmapPlotData,
-                           maximumCycleNumber = 20,
-                           heatmapColor="Reds"){
+#' @export treatmentIterationHeatmap
+treatmentIterationHeatmap<-function(heatmapPlotData,
+                                         maximumCycleNumber = 20,
+                                         heatmapColor="Reds"){
   #label
   total<-heatmapPlotData %>%group_by(cohortName) %>% mutate(sum = sum(n)) %>% select (cohortName,sum)
   total<-unique(total)
@@ -112,15 +118,16 @@ iterationHeatmap<-function(heatmapPlotData,
   label<-as.matrix(plotDataN)
   heatmap<-superheat::superheat(plotData,
                                 X.text = label,
-                                X.text.size = 4,
+                                X.text.size = 3,
                                 scale = FALSE,
-                                left.label.text.size=4,
+                                left.label.text.size=3,
+                                left.label.text.alignment = "left",
                                 left.label.size = 0.3,
                                 bottom.label.text.size=4,
                                 bottom.label.size = .05,
                                 heat.pal = RColorBrewer::brewer.pal(9, heatmapColor),
                                 heat.pal.values = c(seq(0,0.3,length.out = 8),1),
                                 order.rows = sort.order,
-                                title = "Trends of the Repetition")
+                                title = "Trends of the treatment iteration")
   return(heatmap)
 }

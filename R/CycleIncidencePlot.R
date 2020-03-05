@@ -16,7 +16,7 @@
 #' Incidence comparison plot
 #' Compare the incidence of event in each treatment
 #' @param connectionDetails
-#' @param resultDatabaseSchema
+#' @param cohortDatabaseSchema
 #' @param cohortTable
 #' @param targetCohortIds
 #' @param conditionCohortIds
@@ -25,6 +25,8 @@
 #' @param eventPeriod
 #' @param targetMin
 #' @param restrictInitialSeries
+#' @param outputFolder
+#' @param outputFileTitle
 #' @keywords Incidence
 #' @return Incidence plot
 #' @examples
@@ -34,10 +36,12 @@
 #' @import scales
 #' @import gridExtra
 #' @import viridis
-#' @export incidencePlot
-incidencePlot<-function(connectionDetails,
-                        resultDatabaseSchema,
+#' @export cycleIncidencePlot
+cycleIncidencePlot<-function(connectionDetails,
+                        cohortDatabaseSchema,
                         cohortTable,
+                        outputFolder = NULL,
+                        outputFileTitle = NULL,
                         targetCohortIds,
                         conditionCohortIds,
                         eventCohortIds,
@@ -49,7 +53,7 @@ incidencePlot<-function(connectionDetails,
   cohortDescript <-cohortDescription()
   # Pull cohort data
   targetCohort<-cohortCycle(connectionDetails,
-                            resultDatabaseSchema,
+                            cohortDatabaseSchema,
                             cohortTable,
                             targetCohortIds,
                             identicalSeriesCriteria,
@@ -63,11 +67,11 @@ incidencePlot<-function(connectionDetails,
   }
 
   eventCohort<-cohortRecords(connectionDetails,
-                             resultDatabaseSchema,
+                             cohortDatabaseSchema,
                              cohortTable,
                              eventCohortIds)
   eventCohort <- dplyr::left_join(eventCohort,cohortDescript, by= c("cohortDefinitionId"="cohortDefinitionId"))
-  eventCohort <- unique(eventCohort %>% mutate (cycle = 0) %>% select(-type) %>% subset(subjectId %in% targetCohort$subjectId))
+  eventCohort <- unique(eventCohort %>% mutate (cycle = 0) %>% select(-type) %>% subset(subjectId %in% targetCohort$subjectId)) %>% select(-conceptId)
   # Cohort name cycle
   collapsedCohort<-rbind(targetCohort,eventCohort) %>% arrange(subjectId,cohortStartDate) %>% mutate(cohort_cycle = paste0(cycle,'_',
                                                                                                                            cohortName
@@ -97,7 +101,9 @@ incidencePlot<-function(connectionDetails,
 
   # Plot data
   plotData<-left_join(collapsedSummarise,seperateNameIndex) %>% mutate(ratio = event/total)  %>% select(cycle,cohortName,event,total,ratio,cohort_cycle) %>% arrange(cohortName,cycle)
-
+  if(!is.null(outputFolder)){
+    fileName <- paste0(outputFileTitle,'_','EventIncidenceInCycle.csv')
+    write.csv(plotData, file.path(outputFolder, fileName),row.names = F)}
   # plot #1 - Incidence Rate
 
   p1 <- ggplot(na.omit(plotData), aes(x = cohort_cycle, y = ratio, group = cohortName, color = cohortName)) +
@@ -150,4 +156,4 @@ incidencePlot<-function(connectionDetails,
 
   # multiplot
   p<-grid.arrange(p1, p2, ncol = 1)
-return(list(plotData,p))}
+return(p)}

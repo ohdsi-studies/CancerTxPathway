@@ -16,7 +16,7 @@
 #' sankey for regimen and surgery
 #' Visualization tool for sankey for regimen and surgery
 #' @param connectionDetails
-#' @param resultDatabaseSchema
+#' @param cohortDatabaseSchema
 #' @param cohortTable
 #' @param conditionCohortIds
 #' @param targetCohortIds
@@ -25,19 +25,23 @@
 #' @param treatmentLine
 #' @param collapseDates
 #' @param nodeMinSubject
+#' @param outputFolder
+#' @param outputFileTitle
 #' @keywords sankey
 #' @return sankey for regimen with other evnets
 #' @examples
 #' @import dplyr
 #' @import networkD3
-#' @export sankeyDiagram
-sankeyDiagram<-function(connectionDetails,
-                        resultDatabaseSchema,
+#' @export treatmentPathway
+treatmentPathway<-function(connectionDetails,
+                        cohortDatabaseSchema,
                         cohortTable,
+                        outputFolder = NULL,
+                        outputFileTitle = NULL,
                         conditionCohortIds=NULL,
                         targetCohortIds,
                         eventCohortIds=NULL,
-                        minimumRegimenChange = 0,
+                        minimumRegimenChange = 1,
                         treatmentLine = 3,
                         collapseDates = 0,
                         nodeMinSubject = 0
@@ -45,11 +49,11 @@ sankeyDiagram<-function(connectionDetails,
   ##Treatment cohort##
   cohortDescript <- cohortDescription()
   cohortForGraph<-cohortCycle(connectionDetails,
-                              resultDatabaseSchema,
+                              cohortDatabaseSchema,
                               cohortTable,
                               targetCohortIds,
                               identicalSeriesCriteria = 60,
-                              conditionCohortIds = NULL)
+                              conditionCohortIds)
   cohortForGraph <- cohortForGraph %>% subset(cycle == 1)
   cohortData <- cohortForGraph %>% select(-cohortName,-cycle)
   cohortData$cohortStartDate<-as.Date(cohortData$cohortStartDate)
@@ -58,7 +62,7 @@ sankeyDiagram<-function(connectionDetails,
   ##event cohort##
   if(!is.null(eventCohortIds)){
     eventCohort<-cohortRecords(connectionDetails,
-                               resultDatabaseSchema,
+                               cohortDatabaseSchema,
                                cohortTable,
                                eventCohortIds)
     eventCohort<-dplyr::left_join(eventCohort,cohortDescript, by= c("cohortDefinitionId"="cohortDefinitionId"))
@@ -93,7 +97,7 @@ sankeyDiagram<-function(connectionDetails,
     return(reconstructedRecords)}))
   ##Set minimum regimen change count##
   eventAndTarget<-collapsedRecords
-  minimunIndexId<-unique(eventAndTarget %>% arrange(subjectId,cohortStartDate) %>% group_by(subjectId) %>% mutate(line = row_number()) %>% subset(line >= minimumRegimenChange) %>% select(subjectId) %>% ungroup())
+  minimunIndexId<-unique(eventAndTarget %>% arrange(subjectId,cohortStartDate) %>% group_by(subjectId) %>% mutate(line = row_number()) %>% subset(line >= minimumRegimenChange+1) %>% select(subjectId) %>% ungroup())
   eventAndTarget<-eventAndTarget %>% subset(subjectId %in% minimunIndexId$subjectId) %>% arrange(subjectId,cohortStartDate)
   ##Maximum treatment line in graph##
   eventAndTarget <- eventAndTarget %>% group_by(subjectId) %>% arrange(subjectId,cohortStartDate) %>% mutate(rowNumber = row_number()) %>% subset(rowNumber <= treatmentLine) %>% select(subjectId,cohortName,rowNumber) %>% mutate(nameOfConcept = paste0(rowNumber,'_',cohortName)) %>% ungroup()
@@ -132,6 +136,11 @@ sankeyDiagram<-function(connectionDetails,
   links$value<-as.numeric(links$value)
   ##Sankey data##
   treatment <-list(nodes=nodes,links=links)
-  sankeyDiagram <- networkD3::sankeyNetwork(Links = treatment$links, Nodes = treatment$nodes, Source = "source",Target = "target", Value = "value", NodeID = "name", fontSize = 12, nodeWidth = 30,sinksRight = FALSE)
-  return(sankeyDiagram)
+  if(!is.null(outputFolder)){
+    fileNameNodes <- paste0(outputFileTitle,'_','SankeyNodes.csv')
+    write.csv(nodes, file.path(outputFolder, fileNameNodes),row.names = F)
+    fileNameLinks <- paste0(outputFileTitle,'_','SankeyLinks.csv')
+    write.csv(links, file.path(outputFolder, fileNameLinks),row.names = F)}
+  treatmentPathway <- networkD3::sankeyNetwork(Links = treatment$links, Nodes = treatment$nodes, Source = "source",Target = "target", Value = "value", NodeID = "name", fontSize = 12, nodeWidth = 30,sinksRight = FALSE)
+  return(treatmentPathway)
 }

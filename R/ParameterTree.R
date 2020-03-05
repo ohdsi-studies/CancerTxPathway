@@ -30,15 +30,6 @@
 #' @import tidyr
 #' @import RColorBrewer
 #' @import collapsibleTree
-#' @export
-readJson <- function(jsonName = "RegimenParameters.json"){
-  pathToRjson <-system.file("Json", jsonName, package = "treatmentCycleExtraction")
-  regimenLists <-rjson::fromJSON(file = pathToRjson)
-
-  class(regimenLists) = "regimenLists"
-  return(regimenLists)
-
-}
 #' @export parameterTree
 parameterTree<-function(targetRegimenConceptIds,collapsed){
   regimenJson<-readJson()

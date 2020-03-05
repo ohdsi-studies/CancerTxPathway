@@ -1,0 +1,190 @@
+---
+title: "Cancer Tx patterns and pathway"
+runtime: shiny
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: rows
+    theme : yeti
+---
+
+```{r global_packages}
+library(flexdashboard)
+library(shiny)
+library(CancerTxPathway)
+library(dplyr)
+library(highcharter)
+library(plotly)
+```
+
+Usage Patterns
+================================
+
+Inputs {.sidebar}
+--------------------------------
+
+### Annual Usage patterns in treatment regimen
+
+The proportion of the patients number treated each regimen for total chemotherapy received patients.
+
+```{r sidebar_ui}
+inputPanel(
+  sliderInput("yearThreshold", "Range of the year",min = 1970, max = 2020, value = c(1990,2020))
+)
+
+```
+
+
+### Annual Usage patterns in treatment regimen
+
+The proportion of the patients number treated each regimen for total chemotherapy received patients.
+
+```{r sidebar_ui2}
+inputPanel(
+  sliderInput("yearThreshold", "Range of the year",min = 1970, max = 2020, value = c(1990,2020))
+)
+
+```
+
+Row
+-------------------------------------
+
+### Treatment Pathway
+
+```{r, echo=FALSE,fig.keep='all'}
+
+treatmentPathway(connectionDetails,
+                 cohortDatabaseSchema,
+                 cohortTable,
+                 outputFolder,
+                 outputFileTitle,
+                 conditionCohortIds,
+                 targetCohortIds,
+                 eventCohortIds = surgeryCohortIds,
+                 minimumRegimenChange = 0,
+                 treatmentLine,
+                 collapseDates,
+                 nodeMinSubject)
+```
+
+Row
+-------------------------------------
+
+### Usage patterns of the treatment
+
+```{r}
+
+fromYear <- reactive(input$yearThreshold[1])
+toYear <- reactive(input$yearThreshold[2])
+output$usage <- renderHighchart({
+  usagePatternGraph(connectionDetails,
+                    cohortDatabaseSchema,
+                    cohortTable,
+                    targetCohortIds,
+                    conditionCohortIds,
+                    outputFolder,
+                    outputFileTitle,
+                    fromYear(),
+                    toYear())
+  
+})
+
+highchartOutput('usage')
+
+```
+
+### Treatment Iteration Distribution
+
+```{r, echo=FALSE,results='hide',fig.keep='all'}
+
+heatmapPlotData<-heatmapData(connectionDetails,
+                             cohortDatabaseSchema,
+                             cohortTable,
+                             targetCohortIds,
+                             outputFolder,
+                             outputFileTitle,
+                             identicalSeriesCriteria,
+                             conditionCohortIds)
+treatmentIterationDistribution(heatmapPlotData,
+                               maximumCycleNumber,
+                               heatmapColor)
+```
+
+Event Incidence In Treatment Iteration
+================================
+
+Inputs {.sidebar}
+--------------------------------
+
+```{r sidebar_ui3}
+
+textInput("ui2","Keyword","regimen")
+actionButton("act","Change apply")
+
+
+```
+
+Column {data-width=600}
+--------------------------------
+
+### Chart 1
+
+```{r, echo=FALSE,results='hide',fig.keep='all'}
+
+renderPlot(cycleIncidencePlot(connectionDetails,
+                   cohortDatabaseSchema,
+                   cohortTable,
+                   outputFolder,
+                   outputFileTitle,
+                   targetCohortIds,
+                   conditionCohortIds,
+                   eventCohortIds,
+                   restrictInitialSeries = TRUE,
+                   restricInitialEvent =TRUE,
+                   identicalSeriesCriteria,
+                   eventPeriod = 30,
+                   targetMin))
+
+```
+
+
+Event Onset Timing
+================================
+
+Column {data-width=600}
+--------------------------------
+
+### Chart 2
+
+```{r, echo=FALSE,fig.keep='all'}
+
+renderPlotly(incidenceDatePlot(connectionDetails,
+                  cohortDatabaseSchema,
+                  cohortTable,
+                  targetCohortIds,
+                  outputFolder,
+                  outputFileTitle,
+                  identicalSeriesCriteria = 60,
+                  conditionCohortIds,
+                  eventCohortIds,
+                  restrictEventDate = 90))
+
+```   
+
+About
+================================
+
+Copyright 2020 Observational Health Data Sciences and Informatics
+
+This file is part of CancerTxPathway
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
