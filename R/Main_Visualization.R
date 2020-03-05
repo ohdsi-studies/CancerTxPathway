@@ -171,7 +171,6 @@ CancerTxPatterns<-function(connectionDetails,
                                         eventCohortIds,
                                         restrictEventDate = 90)
   pathToRmd <- system.file("rmd","Treatment_PatternsLocalVer.Rmd",package = "CancerTxPathway")
-  library(flexdashboard)
   rmarkdown::render(pathToRmd,"flex_dashboard",output_dir = outputFolder,output_file = paste0(outputFileTitle,'.','html'),
                     params = list(outputFolder = outputFolder,
                                   outputFileTitle = outputFileTitle,
