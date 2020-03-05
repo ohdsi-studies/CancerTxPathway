@@ -101,7 +101,7 @@ superheat::superheat(plotData,
 
 ```
 
-Event Incidence In Treatment Iteration 
+Event Onset Timing
 ================================
 
 Row {data-width = 600}
