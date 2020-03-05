@@ -32,15 +32,13 @@
 #' @param toYear
 #' @param identicalSeriesCriteria
 #' @param maximumCycleNumber
-#' @param heatmapColor
-#' @param nodeMinSubject
+#' @param minSubject
 #' @param collapseDates
 #' @param conditionCohortIds
 #' @param treatmentLine
 #' @param minimumRegimenChange
 #' @param surgeryCohortIds
 #' @param eventCohortIds
-#' @param targetMin
 #' @keywords
 #' @return CancerTxPatterns plots
 #' @examples
@@ -58,21 +56,19 @@ CancerTxPatterns<-function(connectionDetails,
                            outputFolder,
                            outputFileTitle,
                            targetCohortIds,
-                           episodeCohortCreate,
+                           episodeCohortCreate = FALSE,
                            createEpisodeCohortTable,
-                           fromYear,
-                           toYear,
-                           identicalSeriesCriteria,
-                           maximumCycleNumber,
-                           heatmapColor,
-                           nodeMinSubject,
-                           collapseDates,
+                           fromYear = 1998,
+                           toYear = 2018,
+                           identicalSeriesCriteria = 60,
+                           maximumCycleNumber = 18,
+                           minSubject = 0,
+                           collapseDates = 0,
                            conditionCohortIds,
-                           treatmentLine,
-                           minimumRegimenChange,
+                           treatmentLine = 3,
+                           minimumRegimenChange = 1,
                            surgeryCohortIds,
-                           eventCohortIds,
-                           targetMin){
+                           eventCohortIds){
 
   if(!is.null(outputFolder))
   {if (!file.exists(outputFolder)){dir.create(outputFolder, recursive = TRUE)}}
@@ -127,9 +123,9 @@ CancerTxPatterns<-function(connectionDetails,
                                outputFileTitle,
                                identicalSeriesCriteria,
                                conditionCohortIds)
-  heatmap<-TreatmentIterationHeatmap(heatmapPlotData,
-                                          maximumCycleNumber,
-                                          heatmapColor)
+  heatmap<-treatmentIterationHeatmap(heatmapPlotData,
+                                     maximumCycleNumber,
+                                     minSubject)
   ParallelLogger::logInfo("Drawing a flow chart of the treatment pathway...")
   treatmentPathway<-treatmentPathway(connectionDetails,
                                      cohortDatabaseSchema,
@@ -142,7 +138,7 @@ CancerTxPatterns<-function(connectionDetails,
                                      minimumRegimenChange,
                                      treatmentLine,
                                      collapseDates,
-                                     nodeMinSubject)
+                                     minSubject)
 
   ParallelLogger::logInfo("Drawing incidence of the adverse event in each cycle...")
   cycleIncidencePlot <- cycleIncidencePlot(connectionDetails,
@@ -157,7 +153,7 @@ CancerTxPatterns<-function(connectionDetails,
                                            restricInitialEvent =TRUE,
                                            identicalSeriesCriteria,
                                            eventPeriod = 30,
-                                           targetMin)
+                                           minSubject)
 
   ParallelLogger::logInfo("Drawing neutropenia onset timing in each regimen...")
   incidenceDatePlot<- incidenceDatePlot(connectionDetails,
@@ -174,6 +170,5 @@ CancerTxPatterns<-function(connectionDetails,
   rmarkdown::render(pathToRmd,"flex_dashboard",output_dir = outputFolder,output_file = paste0(outputFileTitle,'.','html'),
                     params = list(outputFolder = outputFolder,
                                   outputFileTitle = outputFileTitle,
-                                  maximumCycleNumber = maximumCycleNumber,
-                                  heatmapColor = heatmapColor),clean = TRUE)
+                                  maximumCycleNumber = maximumCycleNumber, minSubject = minSubject),clean = TRUE)
   return(list(usageGraph,heatmap,treatmentPathway,cycleIncidencePlot,incidenceDatePlot))}

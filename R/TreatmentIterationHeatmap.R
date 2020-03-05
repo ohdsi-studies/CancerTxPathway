@@ -27,16 +27,15 @@
 #' @param outputFolder
 #' @param outputFileTitle
 #' @param maximumCycleNumber
-#' @param heatmapColor
+#' @param minSubject
 #' @keywords heatmap
 #' @return repitition trend heatmap
 #' @examples
 #' @import dplyr
 #' @import data.table
-#' @import superheat
+#' @import highcharter
 #' @import ggplot2
 #' @import tidyr
-#' @import RColorBrewer
 #' @export distributionTable
 distributionTable <- function(standardData,
                               targetId){
@@ -89,45 +88,12 @@ heatmapData<-function(connectionDetails,
 #' @export treatmentIterationHeatmap
 treatmentIterationHeatmap<-function(heatmapPlotData,
                                          maximumCycleNumber = 20,
-                                         heatmapColor="Reds"){
+                                         minSubject){
   #label
-  total<-heatmapPlotData %>%group_by(cohortName) %>% mutate(sum = sum(n)) %>% select (cohortName,sum)
-  total<-unique(total)
+  total <- heatmapPlotData %>%group_by(cohortName) %>% mutate(sum = sum(n)) %>% select (cohortName,sum)
+  total <- unique(total)
   total$label<-paste0(total$cohortName,' \n','(n = ',total$sum,')')
-
-  heatmapPlotDataN <- as_tibble(heatmapPlotData) %>% mutate(ratioLabel = paste0(ratio,'\n','(n = ',n,')')) %>%  select(cycle, cohortName, ratioLabel)%>% subset(cycle <=maximumCycleNumber)
-  plotDataN <- tidyr::spread(heatmapPlotDataN, cycle, ratioLabel)
-  plotDataN[is.na(plotDataN)] <- 0
-  plotDataN$cohortName <- NULL
-  #data pre-processing
-  heatmapPlotData <- as_tibble(heatmapPlotData) %>% select(cycle, cohortName, ratio) %>% subset(cycle <=maximumCycleNumber)
-  class(heatmapPlotData$ratio) = "dbl"
-  plotData <- tidyr::spread(heatmapPlotData, cycle, ratio)
-  plotDataNMatrix<-as.matrix(plotDataN)
-  sort.order <- order(plotDataNMatrix[,1])
-
-  plotData <- left_join(plotData,total,by = c("cohortName"="cohortName"))
-  plotData <- as.data.frame(plotData)
-  plotData[is.na(plotData)] <- 0
-
-  row.names(plotData) <- plotData$label
-  plotData$cohortName <- NULL
-  plotData$sum <- NULL
-  plotData$label <- NULL
-  sort.order <- order(plotData[,1])
-  label<-as.matrix(plotDataN)
-  heatmap<-superheat::superheat(plotData,
-                                X.text = label,
-                                X.text.size = 3,
-                                scale = FALSE,
-                                left.label.text.size=3,
-                                left.label.text.alignment = "left",
-                                left.label.size = 0.3,
-                                bottom.label.text.size=4,
-                                bottom.label.size = .05,
-                                heat.pal = RColorBrewer::brewer.pal(9, heatmapColor),
-                                heat.pal.values = c(seq(0,0.3,length.out = 8),1),
-                                order.rows = sort.order,
-                                title = "Trends of the treatment iteration")
-  return(heatmap)
+  heatmapPlotData <- heatmapPlotData %>% subset(n >= minSubject)
+  h <- heatmapPlotData %>% highcharter::hchart(.,type="heatmap",hcaes(x = cycle,y=cohortName,value = ratio),dataLabels = list(allowOverlap = TRUE, enabled = TRUE,format = '{point.n}<br>{point.value}%'),align ='center') %>% hc_xAxis(max = maximumCycleNumber, tickInterval = 1) %>% hc_yAxis(title = list(text = 'Regimen')) %>% hc_colorAxis(stops = color_stops(ceiling(max(heatmapPlotData$ratio)),c("white","blue"))) %>% hc_tooltip(pointFormat = "Regimen: {point.y} <br> Cycle: {point.x} <br> Proportion: {point.value}%")
+  return(h)
 }

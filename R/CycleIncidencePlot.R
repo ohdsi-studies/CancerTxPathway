@@ -23,7 +23,7 @@
 #' @param eventCohortIds
 #' @param identicalSeriesCriteria
 #' @param eventPeriod
-#' @param targetMin
+#' @param minSubject
 #' @param restrictInitialSeries
 #' @param outputFolder
 #' @param outputFileTitle
@@ -49,7 +49,7 @@ cycleIncidencePlot<-function(connectionDetails,
                         restricInitialEvent =TRUE,
                         identicalSeriesCriteria = 60,
                         eventPeriod = 30,
-                        targetMin = 0){# Cohort information
+                        minSubject = 0){# Cohort information
   cohortDescript <-cohortDescription()
   # Pull cohort data
   targetCohort<-cohortCycle(connectionDetails,
@@ -95,7 +95,7 @@ cycleIncidencePlot<-function(connectionDetails,
   collapsedSummarise[is.na(collapsedSummarise)] <-0
 
   # Over the minimum patient number
-  collapsedSummarise <- collapsedSummarise %>% subset(total >= targetMin)
+  collapsedSummarise <- collapsedSummarise %>% subset(total >= minSubject)
 
   seperateNameIndex<-unique(targetCohort %>% mutate(cohort_cycle = paste0(cycle,'_',cohortName)) %>% select(cohortName,cycle,cohort_cycle))
 
