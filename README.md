@@ -16,23 +16,40 @@ Clinical characterization of cancer treatment using the Oncology CDM
 
 This study aims to charaterize the cancer treatment based on the **Oncology CDM**
 
-# treatmentCycleExtraction
+# CancerTxPathway
 
 Introduction
 ==========
-Tool for extracting treatment cycle from single medication records in CDM database
+Tool for extracting chemotherapy cycle records from single medication records in CDM database.
+Then, visualize the treatment pathway using extracted chemotherapy and treatments.
+As a proof of the study, the chemotherapy-induced neutropenia onset timing is suggested.  
 
 Technology
 ==========
-treatmentCycleExtraction is an R package.
+CancerTxPathway is an R package codes for whole process of the study.
 
 Dependencies
 ============
-* SqlRender
-* DatabaseConnector
-* dplyr
-* data.table
-* rjson
+install.packages("DatabaseConnector")
+install.packages("collapsibleTree")
+install.packages("data.table")
+install.packages("dplyr")
+install.packages("ggplot2")
+install.packages("ggthemes")
+install.packages("reshape2")
+install.packages("scales")
+install.packages("highcharter")
+install.packages("gridExtra")
+install.packages("viridis")
+install.packages("tidyverse")
+install.packages("hrbrthemes")
+install.packages("plotly")
+install.packages("SqlRender")
+install.packages("listviewer")
+install.packages("tidyr")
+install.packages("networkD3")
+install.packages("ggbeeswarm")
+install.packages("flexdashboard")
 
 Getting started
 ============
@@ -40,9 +57,10 @@ In R, use the following commands to download and install:
 
 install.packages("devtools")
 
-devtools::install_github("ABMI/treatmentCycleExtraction")
+devtools::install_github("ohdsi-studies/CancerTxPathway")
 
-library('treatmentCycleExtraction')
+library(CancerTxPathway)
+library(flexdashboard)
 
 How to run
 ============
@@ -50,6 +68,7 @@ How to run
 
 Database parameters :
 ```r
+
 # Details for connecting to the server:
 connectionDetails <- DatabaseConnector::createConnectionDetails(dbms='pdw',
                                                                 server=Sys.getenv("PDW_SERVER"),
@@ -57,25 +76,21 @@ connectionDetails <- DatabaseConnector::createConnectionDetails(dbms='pdw',
                                                                 user=NULL,
                                                                 password=NULL,
                                                                 port='port')
-# The name of the database schema where the study-specific cohorts will be instantiated:
-cohortDatabaseSchema <-'cohort_Database_Schema.dbo'
-cdmDatabaseSchema <- 'cdm_Database_Schema.dbo'
-vocaDatabaseSchema <- 'voca_Database_Schema.dbo'
-oncologyDatabaseSchema <- 'oncology_Database_Schema.dbo'
 
-# The name of the table where the study-specific cohorts will be instantiated:
-cohortTable <-'cohort'
-episodeTable <- 'episode_table_name'
-episodeEventTable <- 'episode_event_table_name'
-createEpisodeAndEventTable <- FALSE
+oracleTempSchema <- NULL
+cdmDatabaseSchema <- "cdm_database_schema.dbo"
+cohortDatabaseSchema <- "cohort_database_schema.dbo"
+vocaDatabaseSchema <- "voca_database_schema.dbo"
+oncologyDatabaseSchema <- "oncology_database_schema.dbo" # Schema for Episode table and Episode_eventtable, default = cdmDatabaseSchema
 
-# Target regimen concept ids(blank = all):
-targetRegimenConceptIds <- c(35806596,35804761)
 
-# Target cohort definition id:
-targetCohortId <- 272
+createCohortTable <- FALSE # Create cohort table for your cohort table
+createEpisodeAndEventTable <- TRUE # warning: existing table might be erased
 
-# The number of cores in use
+episodeTable <- "episode_table"
+episodeEventTable <- "episode_event_table"
+cohortTable <- "cohort"
+
 maxCores <- 4
 
 ```
@@ -84,68 +99,91 @@ maxCores <- 4
 Generate episode and episode event table :
 ```r
 ## Episode table and episode Event generation
-episodeAndEpisodeEvent<-generateEpisodeTable(targetRegimenConceptIds,
-                                             connectionDetails,
-                                             cohortTable,
-                                             cdmDatabaseSchema,
-                                             cohortDatabaseSchema,
-                                             targetCohortId,
-                                             maxCores)
-```
-Insert table into database :
-```r
-insertEpisodeToDatabase(connectionDetails,
-                        oncologyDatabaseSchema,
-                        episodeTable,
-                        episodeEventTable,
-                        createEpisodeAndEventTable,
-                        episodeAndEpisodeEvent)
+executeExtraction(connectionDetails,
+                  oracleTempSchema = NULL,
+                  cdmDatabaseSchema,
+                  cohortDatabaseSchema,
+                  vocaDatabaseSchema = cdmDatabaseSchema,
+                  oncologyDatabaseSchema = cdmDatabaseSchema,
+                  createCohortTable = FALSE,
+                  createEpisodeAndEventTable = FALSE,
+                  createTargetCohort = FALSE,
+                  episodeTable,
+                  episodeEventTable,
+                  cohortTable,
+                  maxCores = 4)
 ```
 
-# Cohort generation
+# Parameter setting for visualization :
 
-If you do not have a cohort table, create the target cohort for treatmentCycleExtraction :
+Before the setting parameters for visualization, insert your cohort information in inst/csv/cohortDescription.csv file.
+Then, set the parameters :
 ```r
-conceptIdSet <- c(443384,
-                  4181344,
-                  443381,
-                  443390,
-                  4180792,
-                  4180791,
-                  443382,
-                  4180790,
-                  443391,
-                  435754,
-                  443383,
-                  4089661) #colorectal cancer
 
-createCohort(createCohortTable = FALSE,
-             connectionDetails = connectionDetails,
-             oracleTempSchema = NULL,
-             cdmDatabaseSchema = cdmDatabaseSchema,
-             cohortDatabaseSchema = cohortDatabaseSchema,
-             vocabularyDatabaseSchema = vocaDatabaseSchema,
-             cohortTable = cohortTable,
-             conceptIdSet = conceptIdSet,
-             includeConceptIdSetDescendant = TRUE,
-             targetCohortId = targetCohortId)
+outputFolder <- 'output folder path'
+outputFileTitle <- 'output file title'
+targetCohortIds <- c(4:11)
+episodeCohortCreate <- TRUE
+minSubject <- 0 # under 0 patients are removed from plot
+
+# Usage Pattern graph
+fromYear <- 1998
+toYear <- 2018
+
+# Iteration Heatmap
+identicalSeriesCriteria <- 60 # Regard as a same treatment when gap dates between each cycle less than 60 days
+maximumCycleNumber <- 18 # Ignore patients who received regimen more than 18 iteration
+
+# Treatment Pathway
+collapseDates <- 0
+conditionCohortIds <- 1 # restrict target patients with certain condition_occurrence
+treatmentLine <- 3 # Treatment line number for visualize in graph
+minimumRegimenChange <- 1 # Target patients for at least 1 regimen change
+
+# Cohort for surgery and event
+surgeryCohortIds <- 42 # Colectomy
+eventCohortIds <- 45 # Neutropenia
+
+# ignore the event in range of +- treatmentEffectDates
+treatmentEffectDates <- 2
 ```
-# Rule Editor
+# Visualization results export
 
-If you need a modification in the rule for algorithm :
+Excute after the parameter settings and cohort description in csv file :
 ```r
-targetRegimenIds <- c(35806596,35804761)
-newJson <- ruleEditor(targetRegimenIds) # Edit your rule
-newJson <- ruleEditor(new= TRUE) # Add a new rule
-ruleSave(newJson,targetRegimenIds) # Save your rule
+plots <- CancerTxPatterns(connectionDetails,
+                          oracleTempSchema,
+                          cdmDatabaseSchema,
+                          cohortDatabaseSchema,
+                          oncologyDatabaseSchema,
+                          vocaDatabaseSchema,
+                          cohortTable,
+                          episodeTable,
+                          outputFolder,
+                          outputFileTitle,
+                          targetCohortIds,
+                          episodeCohortCreate = FALSE,
+                          createEpisodeCohortTable,
+                          fromYear = 1998,
+                          toYear = 2018,
+                          identicalSeriesCriteria = 60,
+                          maximumCycleNumber = 18,
+                          minSubject = 0,
+                          collapseDates = 0,
+                          conditionCohortIds,
+                          treatmentLine = 3,
+                          minimumRegimenChange = 1,
+                          surgeryCohortIds,
+                          eventCohortIds,
+                          treatmentEffectDates = 2)
 ```
 
 License
 =======
-  treatmentCycleExtraction is licensed under Apache License 2.0
+  CancerTxPathway is licensed under Apache License 2.0
 
 Development
 ===========
-  treatmentCycleExtraction is being developed in R Studio.
+  CancerTxPathway is being developed in R Studio.
 
 
