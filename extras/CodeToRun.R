@@ -83,6 +83,9 @@ minimumRegimenChange <- 1 # Target patients for at least 1 regimen change
 surgeryCohortIds <- 42 # Colectomy
 eventCohortIds <- 45 # Neutropenia
 
+# ignore the event in range of +- treatmentEffectDates
+treatmentEffectDates <- 2
+
 plots <- CancerTxPatterns(connectionDetails,
                           oracleTempSchema,
                           cdmDatabaseSchema,
@@ -106,5 +109,6 @@ plots <- CancerTxPatterns(connectionDetails,
                           treatmentLine = 3,
                           minimumRegimenChange = 1,
                           surgeryCohortIds,
-                          eventCohortIds)
+                          eventCohortIds,
+                          treatmentEffectDates = 2)
 

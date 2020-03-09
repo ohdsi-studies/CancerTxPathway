@@ -39,6 +39,7 @@
 #' @param minimumRegimenChange
 #' @param surgeryCohortIds
 #' @param eventCohortIds
+#' @param treatmentEffectDates
 #' @keywords
 #' @return CancerTxPatterns plots
 #' @examples
@@ -68,7 +69,8 @@ CancerTxPatterns<-function(connectionDetails,
                            treatmentLine = 3,
                            minimumRegimenChange = 1,
                            surgeryCohortIds,
-                           eventCohortIds){
+                           eventCohortIds,
+                           treatmentEffectDates = 2){
 
   if(!is.null(outputFolder))
   {if (!file.exists(outputFolder)){dir.create(outputFolder, recursive = TRUE)}}
@@ -162,10 +164,11 @@ CancerTxPatterns<-function(connectionDetails,
                                         targetCohortIds,
                                         outputFolder,
                                         outputFileTitle,
-                                        identicalSeriesCriteria = 60,
+                                        identicalSeriesCriteria,
                                         conditionCohortIds,
                                         eventCohortIds,
-                                        restrictEventDate = 90)
+                                        restrictEventDate = 60,
+                                        treatmentEffectDates)
   pathToRmd <- system.file("rmd","Treatment_PatternsLocalVer.Rmd",package = "CancerTxPathway")
   rmarkdown::render(pathToRmd,"flex_dashboard",output_dir = outputFolder,output_file = paste0(outputFileTitle,'.','html'),
                     params = list(outputFolder = outputFolder,
