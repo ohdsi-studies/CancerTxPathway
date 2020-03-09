@@ -31,24 +31,43 @@ CancerTxPathway is an R package codes for whole process of the study.
 Dependencies
 ============
 install.packages("DatabaseConnector")
+
 install.packages("collapsibleTree")
+
 install.packages("data.table")
+
 install.packages("dplyr")
+
 install.packages("ggplot2")
+
 install.packages("ggthemes")
+
 install.packages("reshape2")
+
 install.packages("scales")
+
 install.packages("highcharter")
+
 install.packages("gridExtra")
+
 install.packages("viridis")
+
 install.packages("tidyverse")
+
 install.packages("hrbrthemes")
+
 install.packages("plotly")
+
 install.packages("SqlRender")
+
 install.packages("listviewer")
+
 install.packages("tidyr")
+
 install.packages("networkD3")
+
 install.packages("ggbeeswarm")
+
 install.packages("flexdashboard")
 
 Getting started
@@ -60,6 +79,7 @@ install.packages("devtools")
 devtools::install_github("ohdsi-studies/CancerTxPathway")
 
 library(CancerTxPathway)
+
 library(flexdashboard)
 
 How to run
