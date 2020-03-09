@@ -24,7 +24,7 @@
 #' @param minimumRegimenChange
 #' @param treatmentLine
 #' @param collapseDates
-#' @param nodeMinSubject
+#' @param minSubject
 #' @param outputFolder
 #' @param outputFileTitle
 #' @keywords sankey
@@ -44,7 +44,7 @@ treatmentPathway<-function(connectionDetails,
                         minimumRegimenChange = 1,
                         treatmentLine = 3,
                         collapseDates = 0,
-                        nodeMinSubject = 0
+                        minSubject = 0
 ){
   ##Treatment cohort##
   cohortDescript <- cohortDescription()
@@ -106,7 +106,7 @@ treatmentPathway<-function(connectionDetails,
   label <-label %>% mutate(num = seq(from = 0,length.out = nrow(label)))
   ##Nodes##
   treatmentRatio<-data.table::rbindlist(lapply(1:treatmentLine,function(x){eventAndTarget %>% subset(rowNumber==x) %>% group_by(nameOfConcept) %>% summarise(n=n()) %>% mutate(ratio=round(n/sum(n)*100,1))}))
-  treatmentRatio<-treatmentRatio %>% subset(n>=nodeMinSubject)
+  treatmentRatio<-treatmentRatio %>% subset(n>=minSubject)
   label<-dplyr::left_join(treatmentRatio,label,by=c("nameOfConcept"="nameOfConcept")) %>% mutate(name = paste0(cohortName,' (n=',n,', ',ratio,'%)'))
   label<-label %>% mutate(num = seq(from = 0, length.out = nrow(label)))
   nodes<- label %>% select(name)

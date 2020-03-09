@@ -13,10 +13,8 @@ install.packages("tidyverse")
 install.packages("hrbrthemes")
 install.packages("plotly")
 install.packages("SqlRender")
-install.packages("superheat")
 install.packages("listviewer")
 install.packages("tidyr")
-install.packages("RColorBrewer")
 install.packages("networkD3")
 install.packages("ggbeeswarm")
 install.packages("flexdashboard")
@@ -63,30 +61,30 @@ executeExtraction(connectionDetails,
 
 outputFolder <- 'output folder path'
 outputFileTitle <- 'output file title'
-targetCohortIds <- c(1,2,3,4,5,6,7,8)
-episodeCohortCreate <- FALSE
+targetCohortIds <- c(4:11)
+episodeCohortCreate <- TRUE
+minSubject <- 0 # under 0 patients are removed from plot
 
 # Usage Pattern graph
-fromYear <- 2008
+fromYear <- 1998
 toYear <- 2018
 
 # Iteration Heatmap
-identicalSeriesCriteria <- 60
-maximumCycleNumber <- 18
-heatmapColor <-  "Blues" # 'Reds','Greens'
+identicalSeriesCriteria <- 60 # Regard as a same treatment when gap dates between each cycle less than 60 days
+maximumCycleNumber <- 18 # Ignore patients who received regimen more than 18 iteration
 
 # Treatment Pathway
-nodeMinSubject <- 10 # 10 means under 10 patients nodes are removed from pathway graph
 collapseDates <- 0
-conditionCohortIds <- NULL # restrict target patients with certain condition_occurrence
+conditionCohortIds <- 1 # restrict target patients with certain condition_occurrence
 treatmentLine <- 3 # Treatment line number for visualize in graph
-minimumRegimenChange <- 1 # target patients for at least '1' regimen change
+minimumRegimenChange <- 1 # Target patients for at least 1 regimen change
 
 # Cohort for surgery and event
-surgeryCohortIds <- 9 # Colectomy
-eventCohortIds <- 10 # Neutropenia
+surgeryCohortIds <- 42 # Colectomy
+eventCohortIds <- 45 # Neutropenia
 
-targetMin <- 20 # minimum patients number to show in incidence for cycle graph
+# ignore the event in range of +- treatmentEffectDates
+treatmentEffectDates <- 2
 
 plots <- CancerTxPatterns(connectionDetails,
                           oracleTempSchema,
@@ -99,19 +97,18 @@ plots <- CancerTxPatterns(connectionDetails,
                           outputFolder,
                           outputFileTitle,
                           targetCohortIds,
-                          episodeCohortCreate,
+                          episodeCohortCreate = FALSE,
                           createEpisodeCohortTable,
-                          fromYear,
-                          toYear,
-                          identicalSeriesCriteria,
-                          maximumCycleNumber,
-                          heatmapColor,
-                          nodeMinSubject,
-                          collapseDates,
+                          fromYear = 1998,
+                          toYear = 2018,
+                          identicalSeriesCriteria = 60,
+                          maximumCycleNumber = 18,
+                          minSubject = 0,
+                          collapseDates = 0,
                           conditionCohortIds,
-                          treatmentLine,
-                          minimumRegimenChange,
+                          treatmentLine = 3,
+                          minimumRegimenChange = 1,
                           surgeryCohortIds,
                           eventCohortIds,
-                          targetMin)
+                          treatmentEffectDates = 2)
 

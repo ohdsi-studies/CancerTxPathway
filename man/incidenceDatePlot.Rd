@@ -8,7 +8,7 @@ First incidence of event}
 incidenceDatePlot(connectionDetails, cohortDatabaseSchema, cohortTable,
   targetCohortIds, outputFolder = NULL, outputFileTitle = NULL,
   identicalSeriesCriteria, conditionCohortIds, eventCohortIds,
-  restrictEventDate)
+  restrictEventDate, treatmentEffectDates)
 }
 \value{
 Incidence plot

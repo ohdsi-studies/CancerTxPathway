@@ -9,7 +9,7 @@ cycleIncidencePlot(connectionDetails, cohortDatabaseSchema, cohortTable,
   outputFolder = NULL, outputFileTitle = NULL, targetCohortIds,
   conditionCohortIds, eventCohortIds, restrictInitialSeries = TRUE,
   restricInitialEvent = TRUE, identicalSeriesCriteria = 60,
-  eventPeriod = 30, targetMin = 0)
+  eventPeriod = 30, minSubject = 0)
 }
 \value{
 Incidence plot

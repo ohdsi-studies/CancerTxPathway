@@ -9,7 +9,7 @@ treatmentPathway(connectionDetails, cohortDatabaseSchema, cohortTable,
   outputFolder = NULL, outputFileTitle = NULL,
   conditionCohortIds = NULL, targetCohortIds, eventCohortIds = NULL,
   minimumRegimenChange = 1, treatmentLine = 3, collapseDates = 0,
-  nodeMinSubject = 0)
+  minSubject = 0)
 }
 \value{
 sankey for regimen with other evnets
